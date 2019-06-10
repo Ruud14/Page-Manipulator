@@ -1,0 +1,152 @@
+body
+{
+    min-width: 500px;
+    min-height: 300px;
+    background-color: #555555;
+
+}
+header{
+    display: inline;
+}
+#message-text
+{
+    display: inline;
+}
+.text
+{
+    color:#ff8800;
+    margin: 2px; 
+    padding: 0;
+}
+.nav-button
+{
+    min-width: 90px;
+    max-width: 90px;
+    min-height: 20px;
+    display: block;
+    margin: 5px;
+    border: none;
+    padding: 5px 10px;
+    background-color: #ff8800;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+.back-button
+{
+    min-width: 50px;
+    min-height: 20px;
+}
+.border
+{
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ff8800;
+
+}
+#nav-area
+{
+    height: 81%;
+    width: 20%;
+    position: fixed;
+    z-index:2;
+}
+#write-area
+{
+    height: 81%;
+    width: 95%;
+    position: fixed;
+    z-index:1;  
+}
+#navbar
+{
+    list-style-type: none;
+    margin: 0; 
+    padding: 0;
+}
+
+#open-files-list
+{
+    list-style-type: none;
+    position:fixed;
+    top:32px;
+    left:80px;
+}
+.open-files-list-item
+{
+    display: inline;
+}
+.file-title-button
+{
+    max-width: 50px;
+    border: none;
+    padding-right:5px;
+    background-color: #222222;
+    color: white;
+    text-decoration: none;
+    z-index:2;
+    margin:0px;
+    border-radius:10px 2px 0px 0px;
+    padding-bottom: 4px;
+    
+}
+.close-button
+{
+    color: white;
+    position: relative;
+    background-color: #333333;
+    margin:0px;
+    padding-right: 5px;
+    margin-right: 2px;
+    padding-bottom: 4px;
+}
+.textfield
+{
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    min-width: 370px;
+    min-height: 226px;
+    background-color:#444444;
+    z-index:-1;
+    color:#ff8800;
+    
+}
+
+#enabled-sites-text-area
+{  
+    max-width: 90px;
+    min-height: 100px;
+    background-color:#444444;
+    color:#ff8800;
+    white-space: nowrap;
+}
+.selection
+{
+    background-color:#444444;
+    color:#ff8800;
+}
+#filename-textfield
+{
+    background-color:#444444;
+    color:#ff8800;
+    max-width: 90px;
+}
+#info-text
+{
+    position: absolute;
+    right: 5px;
+    top: 20px;
+    max-width: 370px;
+    max-height: 226px;
+    z-index: -5;
+}
+
+footer a
+{
+    position: fixed;
+    bottom: 0;
+    right: 5px;
+    color:#ff8800;
+    z-index:-2;
+}

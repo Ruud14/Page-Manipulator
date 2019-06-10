@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Page Manipulator</title>
+        <script src="popup.js"></script>
+        <link rel="stylesheet" type="text/css" href="popup.css">
+
+    </head>
+    <body>
+        <header
+            ><h1 class="text" align="center">Page Manipulator</h1>
+        </header>
+        
+        <div id="nav-area" class="border">
+            <ul id="navbar" >
+                <li>
+                    <input type="submit" value="Back" id="back-button" class="nav-button back-button">
+                </li>
+                <li>
+                    <input type="submit" value="JavaScript" id="JS-button" class="nav-button">
+                </li>
+                <li>
+                    <input type="submit" value="CSS" id="CSS-button" class="nav-button">   
+                </li>
+                <li>
+                    <input type="submit" value="HTML" id="HTML-button" class="nav-button">
+                </li>
+                <li>
+                    <input type="submit" value="+ New +" id="new-button" class="nav-button">
+                </li>
+                <li>
+                    
+                    <textarea id="enabled-sites-text-area" placeholder="
+                    Active sites
+                    URL or 'all'"></textarea>
+                </li>
+                <li>
+                    <select class="selection" id="position-selection">
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                        <option value="replace">Replace</option>
+                    </select>
+                    <select class="selection" id="mode-selection">
+                            <option value="exact">Exact</option>
+                            <option value="recursive">Recursive</option>
+                    </select>
+                </li>
+                <li>
+                    <input type="submit" value="Try" id="try-button" class="nav-button">
+                </li>
+                <li>
+                    <input type="submit" value="Save" id="save-button" class="nav-button">
+                </li>
+                <li>
+                    <input type="submit" value="Delete" id="delete-button" class="nav-button">
+                </li>
+                <li>
+                    <input type="text" value="filename" id="filename-textfield">
+                </li>
+                <li>
+                    <input type="submit" value="Make" id="make-button" class="nav-button">
+                </li>
+
+            </ul>
+        </div>
+        <div id="write-area" class="border">
+            <ul id="open-files-list">
+            </ul>
+            <h4 id="info-text" align="left" class="text">
+                Inject HTML, CSS or JavaScript to your favorite web-pages.
+                Save the changes you make across all your devices with the same google account. 
+                Have the changes you make be applied everytime you visit the specified website. <br><br>
+                <stron><u>Fun use cases:</u></stron><br>
+                -Cheat simple games like the t-rex game.<br>
+                -Fool your friends by showing them something fake on a website.<br>
+                -Make your own dark-theme for any website.<br>
+                -Test a website you're working on.<br>
+                -Whatevery you can imagine, be creative.<br>
+                <br>
+                <br>
+                <strong><u>Better than 'inspect element' because It will stay after a reload :D</u></strong>
+
+            </h4>
+        </div>
+        <footer><a href="https://github.com/Ruud14" target="_blank">Github.com/Ruud14</a></footer>
+
+    </body>
+</html>

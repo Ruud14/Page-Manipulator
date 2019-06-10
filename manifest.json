@@ -1,0 +1,38 @@
+{
+    "manifest_version":2,
+    "name":"Page Manipulator",
+    "version":"0.1.0",
+    "description":"Inject HTML, CSS or JavaScript to your favorite web-pages. These changes will, of course, only show up on your screen. You can save the changes you make and have them enabled everytime you visit a specific website.",
+    "icons":
+    {
+        "128":"icon128.png",
+        "48":"icon48.png",
+        "16":"icon16.png"
+    },
+    "page_action":
+    {
+        "default_icon": "icon16.png",
+        "default_popup": "popup.html",
+        "default_title": "Page Manipulator"
+    },
+    "background":
+    {
+        "scripts": ["eventpage.js"],
+        "persistent": false
+    },
+    "content_scripts":
+    [
+        {
+            "matches":["<all_urls>","http://www.google.com/*","https://developer.chrome.com/*"],
+            "js": ["content.js"],
+            "css": ["content.css"]
+        } 
+    ],
+    "permissions": [
+        "tabs",
+        "storage",
+        "<all_urls>",
+        "http://*/*",
+        "https://developer.chrome.com/*"
+    ]
+}
