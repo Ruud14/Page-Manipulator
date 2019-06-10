@@ -7,8 +7,11 @@
 
     </head>
     <body>
-        <header
-            ><h1 class="text" align="center">Page Manipulator</h1>
+        <header>
+            
+            <h2 class="text" style="text-align:left;float:left;">Page Manipulator</h2> 
+            <h3 id="message-text" class="text">Context</h3> 
+            <hr style="clear:both; border-top: 1px solid #ff8800;"/>
         </header>
         
         <div id="nav-area" class="border">
@@ -29,10 +32,8 @@
                     <input type="submit" value="+ New +" id="new-button" class="nav-button">
                 </li>
                 <li>
-                    
-                    <textarea id="enabled-sites-text-area" placeholder="
-                    Active sites
-                    URL or 'all'"></textarea>
+                    <textarea id="enabled-sites-text-area" placeholder="Active sites URL or 'all'">
+                    </textarea>
                 </li>
                 <li>
                     <select class="selection" id="position-selection">
@@ -47,9 +48,6 @@
                 </li>
                 <li>
                     <input type="submit" value="Try" id="try-button" class="nav-button">
-                </li>
-                <li>
-                    <input type="submit" value="Save" id="save-button" class="nav-button">
                 </li>
                 <li>
                     <input type="submit" value="Delete" id="delete-button" class="nav-button">
@@ -68,8 +66,7 @@
             </ul>
             <h4 id="info-text" align="left" class="text">
                 Inject HTML, CSS or JavaScript to your favorite web-pages.
-                Save the changes you make across all your devices with the same google account. 
-                Have the changes you make be applied everytime you visit the specified website. <br><br>
+                Have the changes you make be saved and applied everytime you visit the specified website. <br><br>
                 <stron><u>Fun use cases:</u></stron><br>
                 -Cheat simple games like the t-rex game.<br>
                 -Fool your friends by showing them something fake on a website.<br>

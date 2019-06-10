@@ -52,9 +52,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab)
                     let index = active_websites.lastIndexOf("");
                     active_websites.splice(index,1);
                 }
-
+                console.log(active_websites);
                 if(active_websites.includes("all"))
                 {
+                    console.log("ALLLLL");
                     insert(todo,filetext,position,mode);
                 }
                 else if(mode === "recursive")

@@ -14,6 +14,14 @@ function insert(todo,code,position,mode)
     })
     
 }
+// shows msg on the screen
+function show_message(msg)
+{
+    let message_text = document.getElementById("message-text");
+    message_text.textContent = msg;
+    message_text.style.display = "block";
+    window.setTimeout(function(){ message_text.style.display = "none";},1000);
+}
 
 class Editor
 {
@@ -87,6 +95,7 @@ class Editor
     {
         let all_open_files = document.getElementsByClassName("open-files-list-item");
         let all_textfields = document.getElementsByClassName("textfield");
+
         //Delete the file button.
         Array.from(all_open_files).forEach(function(element)
         {
@@ -160,6 +169,8 @@ class Editor
         textfield.id = "textfield-"+title;
         textfield.placeholder = "Code here";
         textfield.appendChild(textnode);
+        textfield.onkeyup = function(){ this.save_current_file();}.bind(this);
+        textfield.onchange = function(){ this.save_current_file();}.bind(this);
         write_area.appendChild(textfield);
     }
     get_current_text()
@@ -191,6 +202,27 @@ class Editor
                 break;
             }
         }
+    }
+    save_current_file()
+    {
+        let current_file_name = this.active_file;
+        let current_text = this.get_current_text();
+        let active_websites = this.navigator.enabled_sites_text_area.value;
+        let position = this.navigator.position_selection.options[this.navigator.position_selection.selectedIndex].value;
+        let mode = this.navigator.mode_selection.options[this.navigator.mode_selection.selectedIndex].value;
+        let all_new_data = {};
+        
+        let current_file_data = {};
+        current_file_data.filename =current_file_name;
+        current_file_data.text = current_text;
+        current_file_data.active_websites = active_websites;
+        current_file_data.position = position;
+        current_file_data.mode = mode;
+        all_new_data[current_file_name] = current_file_data;
+
+        chrome.storage.sync.set(all_new_data, function() {
+            show_message("Saved!");
+        });
     }
 }
 
@@ -239,13 +271,21 @@ class Navigation
         this.css_button = document.getElementById("CSS-button");
         this.html_button = document.getElementById("HTML-button");
         this.try_button = document.getElementById("try-button");
-        this.save_button = document.getElementById("save-button");
         this.make_button = document.getElementById("make-button");
         this.delete_button = document.getElementById("delete-button");
         this.filename_textfield = document.getElementById("filename-textfield");
         this.enabled_sites_text_area = document.getElementById("enabled-sites-text-area");
         this.position_selection = document.getElementById("position-selection");
         this.mode_selection = document.getElementById("mode-selection");
+
+        // Autosave when changing the position, mode or enabled sites.
+        this.position_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
+        this.position_selection.onchange = function(){this.editor.save_current_file()}.bind(this);
+        this.mode_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
+        this.mode_selection.onchange = function(){this.editor.save_current_file()}.bind(this);
+        this.enabled_sites_text_area.onkeyup = function(){this.editor.save_current_file()}.bind(this);
+        this.enabled_sites_text_area.onchange = function(){this.editor.save_current_file()}.bind(this);
+
         this.main_nav_buttons = [this.js_button,this.css_button,this.html_button];
         this.nav_items =[];
         this.bind_buttons();
@@ -320,44 +360,19 @@ class Navigation
 
         }.bind(this);
 
-        // save the changes made to the currenly selected file.
-        this.save_button.onclick = function()
-        {
-            
-            let current_file_name = this.editor.active_file;
-            let current_text = this.editor.get_current_text();
-            let active_websites = this.enabled_sites_text_area.value;
-            let position = this.position_selection.options[this.position_selection.selectedIndex].value;
-            let mode = this.mode_selection.options[this.mode_selection.selectedIndex].value;
-            let all_new_data = {};
-            
-            let current_file_data = {};
-            current_file_data.filename =current_file_name;
-            current_file_data.text = current_text;
-            current_file_data.active_websites = active_websites;
-            current_file_data.position = position;
-            current_file_data.mode = mode;
-            all_new_data[current_file_name] = current_file_data;
-
-            chrome.storage.sync.set(all_new_data, function() {
-                // Notify that we saved.
-                
-            });
-            
-        }.bind(this);
-
         this.delete_button.onclick = function()
         {
             if(confirm("Are you sure you want to delete "+this.editor.active_file+"?"))
             {
                 // Removes the file-button form the array.
-                index= this.get_nav_item_index_by_title();
+                let index= this.get_nav_item_index_by_title();
                 this.nav_items.slice(index,1);
                 // Remove the file from the editor.
                 this.editor.delete_current_file();
                 // Make sure the reloads and the deleted file doesn't show up anymore.
                 this.disable_all_menus();
                 this.enable_menu_of_kind("MAIN");
+                show_message("File Deleted!");
             }
         }.bind(this)
 
@@ -475,7 +490,6 @@ class Navigation
             this.current_menu = "EDITOR";
             this.back_button.style.display = "block";
             this.try_button.style.display = "block";
-            this.save_button.style.display = "block";
             //this.active_sites_label.style.display = "block";
             this.enabled_sites_text_area.style.display = "block";
             this.delete_button.style.display = "block";
@@ -508,10 +522,7 @@ class Navigation
                         break;
                     }
                 }
-            }
-            
-            
-            
+            }    
         }
         else if(kind ==="NEW")
         {
@@ -547,7 +558,6 @@ class Navigation
         {
             this.back_button.style.display = "none";
             this.try_button.style.display = "none";
-            this.save_button.style.display = "none";
             //this.active_sites_label.style.display = "none";
             this.enabled_sites_text_area.style.display = "none";
             this.position_selection.style.display = "none";

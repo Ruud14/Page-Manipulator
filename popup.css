@@ -1,16 +1,18 @@
 body
 {
     min-width: 500px;
-    min-height: 300px;
+    min-height: 303px;
     background-color: #555555;
-
 }
 header{
     display: inline;
 }
 #message-text
 {
-    display: inline;
+    text-align:right;
+    float:right;
+    display: none;
+    color:greenyellow;
 }
 .text
 {
@@ -110,7 +112,7 @@ header{
     background-color:#444444;
     z-index:-1;
     color:#ff8800;
-    
+
 }
 
 #enabled-sites-text-area
@@ -120,6 +122,7 @@ header{
     background-color:#444444;
     color:#ff8800;
     white-space: nowrap;
+    
 }
 .selection
 {
