@@ -4,7 +4,7 @@ window.onload = function statup()
     //chrome.storage.sync.clear();
     main()
 }
-
+// Inserts code into the current site.
 function insert(todo,code,position,mode)
 // todo shoud be > changeHTML, changeCSS or changeJS
 {
@@ -22,7 +22,12 @@ function show_message(msg)
     message_text.style.display = "block";
     window.setTimeout(function(){ message_text.style.display = "none";},1000);
 }
-
+// Returns the filetype of the specified filename in the "FILEEXTENSION" format.
+function filename_to_kind(filename)
+{
+    return (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
+}
+// controlls the edit window
 class Editor
 {
     constructor(navigator)
@@ -32,7 +37,10 @@ class Editor
         this.active_file = "none";
         this.navigator = navigator;
     }
-    add(title, text)
+    
+    // Opens a new editor window if the file doesn't exist yet. 
+    // and opens the file if it aleady exists.
+    open_file(title, text)
     {
         if(this.files.length < this.max_open_files)
         {
@@ -53,6 +61,7 @@ class Editor
             alert("Close some files first.")
         }
     }
+    // Opens the editor window of the file with the specified filename.
     activate_file_by_name(title)
     {
         this.active_file = title;
@@ -73,6 +82,7 @@ class Editor
             })
         
     }
+    // Make the active window button look darker to make it the obvious open file.
     make_button_active(title)
     {
         let all_buttons = document.getElementsByClassName("file-title-button");
@@ -91,6 +101,7 @@ class Editor
         })
         
     }
+    // Closes the editor of the file with the specified filename.
     close_file(title)
     {
         let all_open_files = document.getElementsByClassName("open-files-list-item");
@@ -130,6 +141,7 @@ class Editor
             this.navigator.enable_menu_of_kind("MAIN");
         }
     }
+    // Creates a navigation menu for a file with the specified name.
     create_file_button(title)
     {   
         let ul = document.getElementById("open-files-list");
@@ -160,6 +172,7 @@ class Editor
         this.make_button_active(title);
         this.files.push(title);
     }
+    // Creates a editor window for the file with the specified name and text.
     create_window(title,text)
     {
         let write_area = document.getElementById("write-area");
@@ -173,11 +186,16 @@ class Editor
         textfield.onchange = function(){ this.save_current_file();}.bind(this);
         write_area.appendChild(textfield);
     }
+    // Returns the text of the current edit menu.
     get_current_text()
     {
         let current_textfield = document.getElementById("textfield-"+this.active_file);
         return current_textfield.value;
     }
+    // Returns the the filetype in "FILEEXTENSION" format.
+    // "JS" for javascript.
+    // "CSS" for Cascading Style Sheets.
+    // "HTML" for HyperText Markup Language.
     get_current_filetype()
     {
         if(this.active_file.endsWith(".js")){
@@ -190,6 +208,7 @@ class Editor
             return "HTML";
         }
     }
+    // Deletes the currently active file from storage.
     delete_current_file()
     {
         this.close_file(this.active_file);
@@ -203,6 +222,7 @@ class Editor
             }
         }
     }
+    // Saves the current file and it's properties to the storage.
     save_current_file()
     {
         let current_file_name = this.active_file;
@@ -226,44 +246,28 @@ class Editor
     }
 }
 
-
-class SavedNavItem
+// 
+class File
 {
-    constructor(navigator, title, kind, text, active_websites, position,mode)
+    constructor(input, filename, text, active_websites, position,mode)
     {
-        this.title = title;
+        this.title = filename;
         this.text = text;
         this.navigator = navigator;
         this.active_websites = active_websites
         this.position = position;
         this.mode= mode;
-        // make the html element for the SavedNavItem object.
-        if(kind === "JS" || kind==="CSS" || kind==="HTML")
-        {
-            let input = document.createElement('input');
-            input.type = 'submit';
-            input.value = title;
-            input.className = 'nav-button saved-'+kind.toLowerCase()+'-nav-button'
-            // Add functionallity to the buttons.
-            
-            input.onclick = function()
-            {
-                //alert(text);
-                this.navigator.editor.add(title,text);
-                this.navigator.disable_all_menus();
-                this.navigator.enable_menu_of_kind("EDITOR");
-            }.bind(this);
-            this.element = input;
-        }
+        this.element = input;
+        this.kind = filename_to_kind(filename);
     }
 }
+
+// Controlls the navigation through the menus.
 class Navigation
 {
     constructor()
     {
-        // Getting all the html elements.
-        this.editor = new Editor(this);
-        this.current_menu = "MAIN";
+         // Getting all the html elements.
         this.navbar = document.getElementById("navbar");
         this.back_button = document.getElementById("back-button");
         this.new_button = document.getElementById("new-button");
@@ -286,6 +290,8 @@ class Navigation
         this.enabled_sites_text_area.onkeyup = function(){this.editor.save_current_file()}.bind(this);
         this.enabled_sites_text_area.onchange = function(){this.editor.save_current_file()}.bind(this);
 
+        this.editor = new Editor(this);
+        this.current_menu = "MAIN";
         this.main_nav_buttons = [this.js_button,this.css_button,this.html_button];
         this.nav_items =[];
         this.bind_buttons();
@@ -295,6 +301,7 @@ class Navigation
        
     }
     // binds the correct functions to the buttons.
+    // This method should only be run once -> by the constructor.
     bind_buttons()
     {
         // Change the page to the javascript page.
@@ -379,24 +386,56 @@ class Navigation
         this.make_button.onclick = function()
         {
             let filename = this.filename_textfield.value;
-            if(this.current_menu === "JS" || this.current_menu === "CSS" || this.current_menu === "HTML")
+            // Check if the file already exist by trying to get the current index.
+            if(this.get_nav_item_index_by_title(filename))
             {
-                // Add the correct file extension if there isn't one already.
-                if(!filename.endsWith("."+this.current_menu.toLowerCase()))
+                if(this.current_menu === "JS" || this.current_menu === "CSS" || this.current_menu === "HTML")
                 {
-                    filename+='.'+this.current_menu.toLowerCase();
+                    // Add the correct file extension if there isn't one already.
+                    if(!filename.endsWith("."+this.current_menu.toLowerCase()))
+                    {
+                        filename+='.'+this.current_menu.toLowerCase();
+                    }
+                    let input = this.add_nav_button(filename);
+
+                    // Add functionallity to the button.
+                    input.onclick = function()
+                    {
+                        this.editor.open_file(filename,"");
+                        this.disable_all_menus();
+                        this.enable_menu_of_kind("EDITOR");
+                    }.bind(this);
+
+                    let new_nav_item = new File(input, filename,"","","top");
+                    this.nav_items.push(new_nav_item);
+                    
+                    this.disable_all_menus();
+                    this.reload_nav_items();
+                    this.enable_menu_of_kind(this.current_menu);
                 }
-                let new_nav_item = new SavedNavItem(this,filename,this.current_menu,"","","top");
-                this.nav_items.push(new_nav_item);
-                
-                this.disable_all_menus();
-                this.reload_nav_items();
-                this.enable_menu_of_kind(this.current_menu);
             }
+            else
+            {
+                alert("There already is a file with this name, Try a different one.");
+            }
+            
         }.bind(this);
     }
-    
-    // gets the saved files.
+    // Creates a new button for the specified filename.
+    add_nav_button(filename)
+    {
+        let kind = filename_to_kind(filename);
+        // make the html element for the File object.
+        if(kind === "JS" || kind==="CSS" || kind==="HTML")
+        {
+            let input = document.createElement('input');
+            input.type = 'submit';
+            input.value = filename;
+            input.className = 'nav-button saved-'+kind.toLowerCase()+'-nav-button'
+            return input;
+        }
+    }
+    // gets the saved files from the storage.
     get_saved_nav_items()
     {
         chrome.storage.sync.get(null, function(data) {
@@ -414,8 +453,17 @@ class Navigation
                 let filetext = file_data["text"];
                 let position = file_data["position"];
                 let mode = file_data["mode"];
-                let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
-                let nav_item = new SavedNavItem(this,filename,kind,filetext,active_websites,position,mode);
+                let input = this.add_nav_button(filename);
+
+                // Add functionallity to the button.
+                input.onclick = function()
+                {
+                    this.editor.open_file(filename,filetext);
+                    this.disable_all_menus();
+                    this.enable_menu_of_kind("EDITOR");
+                }.bind(this);
+
+                let nav_item = new File(input, filename,filetext,active_websites,position,mode);
                 this.nav_items.push(nav_item);
   
             }
@@ -423,7 +471,7 @@ class Navigation
         }.bind(this));
        
     }
-
+    // Get the index of the specified filename in 'nav_items'.
     get_nav_item_index_by_title(title)
     {
         for(let i=0; i<this.nav_items.length;i++)
@@ -434,7 +482,7 @@ class Navigation
             }
         }
     }
-    // Creates html elements from the saved files.
+    // Clears the navbar, and populates it with the new data.
     reload_nav_items()
     {
         // clear the ul's.
@@ -450,7 +498,7 @@ class Navigation
             })
         }
         self=this
-        // populate the ul's.
+        // populate the navbar.
         this.nav_items.forEach(function(element)
         {
             let li = document.createElement('li');
@@ -459,7 +507,7 @@ class Navigation
         })
     };
 
-    // Enables the specified menu. options: JS, CSS, HTML
+    // Enables the specified menu. options: "JS","CSS","HTML","MAIN","EDITOR","NEW".
     enable_menu_of_kind(kind)
     {
         this.get_saved_nav_items();
@@ -490,15 +538,16 @@ class Navigation
             this.current_menu = "EDITOR";
             this.back_button.style.display = "block";
             this.try_button.style.display = "block";
-            //this.active_sites_label.style.display = "block";
             this.enabled_sites_text_area.style.display = "block";
             this.delete_button.style.display = "block";
+
             //only display the position option when html.
             if(this.editor.active_file.endsWith(".html"))
             {
                 this.position_selection.style.display = "block";
             }
             this.mode_selection.style.display = "block";
+
             //add the active websites to the enabled_sites_text_area.
             let index = this.get_nav_item_index_by_title(this.editor.active_file);
             if(this.nav_items[index])
@@ -533,7 +582,7 @@ class Navigation
     
     }
 
-    // Disables the specified menu. options: JS, CSS, HTML
+    // Disables the specified menu. options: "JS","CSS","HTML","MAIN","EDITOR","NEW".
     disable_menu_of_kind(kind)
     {
         if(kind === "JS" || kind==="CSS" || kind==="HTML")
@@ -546,7 +595,6 @@ class Navigation
             })
             this.new_button.style.display = "none";
         }
-        // Disables all main menu buttons.
         else if(kind === "MAIN")
         {
             this.main_nav_buttons.forEach(function(element)
@@ -558,7 +606,6 @@ class Navigation
         {
             this.back_button.style.display = "none";
             this.try_button.style.display = "none";
-            //this.active_sites_label.style.display = "none";
             this.enabled_sites_text_area.style.display = "none";
             this.position_selection.style.display = "none";
             this.mode_selection.style.display = "none"
@@ -572,7 +619,7 @@ class Navigation
         }
     }
 
-    // Disables the JS, CSS and HTML menus.
+    // Disables all menus.
     disable_all_menus()
     {
         this.disable_menu_of_kind("MAIN");
