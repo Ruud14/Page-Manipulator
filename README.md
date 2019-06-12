@@ -15,7 +15,7 @@ Better than 'inspect element' because It will stay after a reload :D
 **How to install?**
 Simple, Get it here: `chrome store link`
 
-- Fun use cases:
+- **Fun use cases**:
     - Cheat simple games like the t-rex game.
     - Fool your friends by showing them something fake on a website.
     - Make your own dark-theme for any website.
