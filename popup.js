@@ -57,9 +57,7 @@ class Editor
             }
         }
         else
-        {
             alert("Close some files first.")
-        }
     }
     // Opens the editor window of the file with the specified filename.
     activate_file_by_name(title)
@@ -75,10 +73,8 @@ class Editor
                     element.focus();
                 }
                 // Disable all other textareas
-                else
-                {  
+                else 
                     element.style.display = 'none';
-                }
             })
         
     }
@@ -90,14 +86,10 @@ class Editor
         {
             // make the button active
             if(element.value===title)
-            {
                 element.style.backgroundColor="#222222";
-            }
             // make the other buttons inactive.
             else
-            {
                 element.style.backgroundColor="#444444";
-            }
         })
         
     }
@@ -387,7 +379,7 @@ class Navigation
         {
             let filename = this.filename_textfield.value;
             // Check if the file already exist by trying to get the current index.
-            if(this.get_nav_item_index_by_title(filename))
+            if(this.get_nav_item_index_by_title(filename) == null)
             {
                 if(this.current_menu === "JS" || this.current_menu === "CSS" || this.current_menu === "HTML")
                 {
@@ -513,109 +505,110 @@ class Navigation
         this.get_saved_nav_items();
         this.reload_nav_items();
         this.disable_all_menus();
-        if(kind === "JS" || kind==="CSS" || kind==="HTML")
+        switch(kind)
         {
-            this.disable_menu_of_kind("MAIN");
-            this.back_button.style.display = "block";
-            let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
-            Array.from(all_elements).forEach(function(element)
-            {
-                element.style.display = "block";
-            })
-            this.new_button.style.display = "block";
-            this.current_menu = kind;
-        }
-        else if(kind==="MAIN")
-        {
-            this.main_nav_buttons.forEach(function(element)
-            {
-                element.style.display = "block";
-            })
-            this.current_menu = "MAIN";
-        }
-        else if(kind ==="EDITOR")
-        {
-            this.current_menu = "EDITOR";
-            this.back_button.style.display = "block";
-            this.try_button.style.display = "block";
-            this.enabled_sites_text_area.style.display = "block";
-            this.delete_button.style.display = "block";
-
-            //only display the position option when html.
-            if(this.editor.active_file.endsWith(".html"))
-            {
-                this.position_selection.style.display = "block";
-            }
-            this.mode_selection.style.display = "block";
-
-            //add the active websites to the enabled_sites_text_area.
-            let index = this.get_nav_item_index_by_title(this.editor.active_file);
-            if(this.nav_items[index])
-            {
-                this.enabled_sites_text_area.value = this.nav_items[index].active_websites;
-                let positoin_options = this.position_selection.options;
-                for(let i=0;i<positoin_options.length;i++)
+            case "JS":
+            case "CSS":
+            case "HTML":
+                this.disable_menu_of_kind("MAIN");
+                this.back_button.style.display = "block";
+                let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
+                Array.from(all_elements).forEach(function(element)
                 {
-                    if(positoin_options[i].value === this.nav_items[index].position.toLowerCase())
-                    {
-                        this.position_selection.selectedIndex = i;
-                        break;
-                    }
-                }
-                let mode_options = this.mode_selection.options;
-                for(let i=0;i<mode_options.length;i++)
+                    element.style.display = "block";
+                })
+                this.new_button.style.display = "block";
+                this.current_menu = kind;
+                break;
+            case "MAIN":
+                this.main_nav_buttons.forEach(function(element)
                 {
-                    if(mode_options[i].value === this.nav_items[index].mode.toLowerCase())
-                    {
-                        this.mode_selection.selectedIndex = i;
-                        break;
-                    }
-                }
-            }    
-        }
-        else if(kind ==="NEW")
-        {
-            this.make_button.style.display = "block";
-            this.filename_textfield.style.display = "block";
-            this.back_button.style.display = "block";
-        }
+                    element.style.display = "block";
+                })
+                this.current_menu = "MAIN";
+                break;
+            case "EDITOR":
+                this.current_menu = "EDITOR";
+                this.back_button.style.display = "block";
+                this.try_button.style.display = "block";
+                this.enabled_sites_text_area.style.display = "block";
+                this.delete_button.style.display = "block";
     
+                //only display the position option when html.
+                if(this.editor.active_file.endsWith(".html"))
+                {
+                    this.position_selection.style.display = "block";
+                }
+                this.mode_selection.style.display = "block";
+    
+                //add the active websites to the enabled_sites_text_area.
+                let index = this.get_nav_item_index_by_title(this.editor.active_file);
+                if(this.nav_items[index])
+                {
+                    this.enabled_sites_text_area.value = this.nav_items[index].active_websites;
+                    let positoin_options = this.position_selection.options;
+                    for(let i=0;i<positoin_options.length;i++)
+                    {
+                        if(positoin_options[i].value === this.nav_items[index].position.toLowerCase())
+                        {
+                            this.position_selection.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    let mode_options = this.mode_selection.options;
+                    for(let i=0;i<mode_options.length;i++)
+                    {
+                        if(mode_options[i].value === this.nav_items[index].mode.toLowerCase())
+                        {
+                            this.mode_selection.selectedIndex = i;
+                            break;
+                        }
+                    }
+                } 
+                break;
+            case "NEW":
+                this.make_button.style.display = "block";
+                this.filename_textfield.style.display = "block";
+                this.back_button.style.display = "block";
+                break;
+        }
     }
 
     // Disables the specified menu. options: "JS","CSS","HTML","MAIN","EDITOR","NEW".
     disable_menu_of_kind(kind)
     {
-        if(kind === "JS" || kind==="CSS" || kind==="HTML")
+        switch(kind)
         {
-            this.back_button.style.display = "none";
-            let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
-            Array.from(all_elements).forEach(function(element)
-            {
-                element.style.display = "none";
-            })
-            this.new_button.style.display = "none";
-        }
-        else if(kind === "MAIN")
-        {
-            this.main_nav_buttons.forEach(function(element)
-            {
-                element.style.display = "none";
-            })
-        }
-        else if(kind === "EDITOR")
-        {
-            this.back_button.style.display = "none";
-            this.try_button.style.display = "none";
-            this.enabled_sites_text_area.style.display = "none";
-            this.position_selection.style.display = "none";
-            this.mode_selection.style.display = "none"
-            this.delete_button.style.display = "none";
-        }
-        else if(kind === "NEW")
-        {
-            this.make_button.style.display = "none";
-            this.filename_textfield.style.display = "none";
-            this.back_button.style.display = "none";
+            case "JS":
+            case "CSS":
+            case "HTML":
+                this.back_button.style.display = "none";
+                let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
+                Array.from(all_elements).forEach(function(element)
+                {
+                    element.style.display = "none";
+                })
+                this.new_button.style.display = "none";
+                break;
+            case "MAIN":
+                this.main_nav_buttons.forEach(function(element)
+                {
+                    element.style.display = "none";
+                })
+                break;
+            case "EDITOR":
+                this.back_button.style.display = "none";
+                this.try_button.style.display = "none";
+                this.enabled_sites_text_area.style.display = "none";
+                this.position_selection.style.display = "none";
+                this.mode_selection.style.display = "none"
+                this.delete_button.style.display = "none";
+                break;
+            case "NEW":
+                this.make_button.style.display = "none";
+                this.filename_textfield.style.display = "none";
+                this.back_button.style.display = "none";
+                break;   
         }
     }
 

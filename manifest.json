@@ -23,7 +23,8 @@
     "content_scripts":
     [
         {
-            "matches":["<all_urls>","http://www.google.com/*","https://developer.chrome.com/*"],
+            "run_at": "document_start",
+            "matches":["<all_urls>"],
             "js": ["content.js"],
             "css": ["content.css"]
         } 
@@ -31,8 +32,6 @@
     "permissions": [
         "tabs",
         "storage",
-        "<all_urls>",
-        "http://*/*",
-        "https://developer.chrome.com/*"
+        "<all_urls>"
     ]
 }

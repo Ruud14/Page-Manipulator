@@ -1,6 +1,6 @@
 body
 {
-    min-width: 500px;
+    min-width: 600px;
     min-height: 303px;
     background-color: #555555;
 }
@@ -22,8 +22,8 @@ header{
 }
 .nav-button
 {
-    min-width: 90px;
-    max-width: 90px;
+    min-width: 120px;
+    max-width: 120px;
     min-height: 20px;
     display: block;
     margin: 5px;
@@ -49,7 +49,7 @@ header{
 #nav-area
 {
     height: 81%;
-    width: 20%;
+    width: 25%;
     position: fixed;
     z-index:2;
 }
@@ -62,17 +62,19 @@ header{
 }
 #navbar
 {
+    overflow-y: auto;
     list-style-type: none;
     margin: 0; 
     padding: 0;
+    max-height:250px; /* 1.5 x 3 */
 }
 
 #open-files-list
 {
     list-style-type: none;
     position:fixed;
-    top:32px;
-    left:80px;
+    top:35px;
+    left:125px;
 }
 .open-files-list-item
 {
@@ -107,17 +109,18 @@ header{
     position: absolute;
     right: 5px;
     bottom: 5px;
-    min-width: 370px;
+    min-width: 415px;
     min-height: 226px;
     background-color:#444444;
     z-index:-1;
     color:#ff8800;
+    white-space: nowrap;
 
 }
 
 #enabled-sites-text-area
 {  
-    max-width: 90px;
+    max-width: 120px;
     min-height: 100px;
     background-color:#444444;
     color:#ff8800;
@@ -140,7 +143,7 @@ header{
     position: absolute;
     right: 5px;
     top: 20px;
-    max-width: 370px;
+    max-width: 415px;
     max-height: 226px;
     z-index: -5;
 }
