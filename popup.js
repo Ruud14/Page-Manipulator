@@ -401,9 +401,12 @@ class Navigation
                     let new_nav_item = new File(input, filename,"","","top");
                     this.nav_items.push(new_nav_item);
                     
+                    this.editor.open_file(filename,"");
+                    this.enabled_sites_text_area.value = "";
+                    this.editor.save_current_file();
                     this.disable_all_menus();
                     this.reload_nav_items();
-                    this.enable_menu_of_kind(this.current_menu);
+                    this.enable_menu_of_kind("EDITOR");
                 }
             }
             else
