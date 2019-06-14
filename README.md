@@ -2,8 +2,8 @@
 
 Project status: not finished
 
-WARNING: This project was created in a few days and definitely isn't perfect!
-Also this works on most sites, but there are some exceptions!
+WARNING: This project was created in a few days and definitely isn't perfect (yet :D)!
+This works on most sites, but there are some exceptions!
 
 **Chrome Extension to inject HTML, CSS or JavaScript any web-page.**
 Inject HTML, CSS or JavaScript to your favorite web-pages.
@@ -13,7 +13,17 @@ Better than 'inspect element' because It will stay after a reload :D
 
 
 **How to install?**
-Simple, Get it here: `chrome store link`
+Currently, since it is still work in progress, you have to load it as an unpacked extension.
+If you don't know how to do this, here are the steps.
+- Download all these files and put them in to a folder.
+- Open your chrome browser and click on the 3 dots in the top right corner.
+- Go to: "More Tools" > "Extensions".
+- Enable developer mode in the top right corner.
+- Click "Load unpacked" in the top left corner and select the folder.
+- Enjoy :D
+
+This will soon be in the chrome extensions store.
+for free, of course :D
 
 - **Fun use cases**:
     - Cheat simple games like the t-rex game.
