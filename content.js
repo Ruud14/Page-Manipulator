@@ -1,7 +1,8 @@
-
+load();
+let page_loaded = false;
 window.onload = function statup()
 {
-    
+    page_loaded = true;
     main();
     load();
 }
@@ -63,32 +64,36 @@ function load()
 
 function manipulate(request)
 {
-    if(request.todo==="changeHTML")
+    if(request.todo==="changeHTML" && page_loaded)
     {
         let body = document.body;
-        if(request.position === "top")
+        switch(request.position)
         {
-            body.innerHTML= request.code + body.innerHTML;
-        }
-        else if(request.position === "bottom")
-        {
-            body.innerHTML+= request.code;
-        }
-        else if(request.position ===  "replace")
-        {
-            body.innerHTML= request.code;
+            case "top":
+                body.insertAdjacentHTML('beforeEnd',request.code);
+                break;
+            case "bottom":
+                body.insertAdjacentHTML('afterBegin',request.code);
+                break;
+            case "replace":
+                body.innerHTML= request.code;
+                break;
         }
     }
-    else if(request.todo ==="changeCSS")
+    else if(request.todo ==="changeCSS" && !page_loaded)
     {
-        let head = document.head;
-        let style = document.createElement('style');
-        style.type = 'text/css';
-        style.appendChild(document.createTextNode(request.code));
-        head.appendChild(style);
+        chrome.runtime.sendMessage({todo:"insertCSS",code:request.code});
+        // old method:
+        // let head = document.head;
+        // let style = document.createElement('style');
+        // style.type = 'text/css';
+        // style.appendChild(document.createTextNode(request.code));
+        // head.appendChild(style);
     }
-    else if(request.todo ==="changeJS")
+    else if(request.todo ==="changeJS" && page_loaded)
     {
+        //chrome.runtime.sendMessage({todo:"insertJS",code:request.code});
+        // old method:
         let head = document.head;
         let script = document.createElement('script');
         script.textContent = request.code;

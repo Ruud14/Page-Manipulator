@@ -6,6 +6,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
     {
         show_page();
     }
+    else if(request.todo =="insertCSS")
+    {
+        chrome.tabs.insertCSS(null, {code:request.code, allFrames:false, runAt:"document_start"});
+    }
 })
 
 //Allows the popup to show up.
@@ -18,4 +22,4 @@ function show_page()
 }
 
 
-show_page();
+
