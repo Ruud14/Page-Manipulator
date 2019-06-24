@@ -561,10 +561,13 @@ class Navigation
                     let mode_options = this.mode_selection.options;
                     for(let i=0;i<mode_options.length;i++)
                     {
-                        if(mode_options[i].value === this.nav_items[index].mode.toLowerCase())
+                        if(this.nav_items[index].mode != null)
                         {
-                            this.mode_selection.selectedIndex = i;
-                            break;
+                            if(mode_options[i].value === this.nav_items[index].mode.toLowerCase())
+                            {
+                                this.mode_selection.selectedIndex = i;
+                                break;
+                            }
                         }
                     }
                 } 

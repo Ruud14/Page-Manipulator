@@ -81,7 +81,7 @@ function manipulate(request, update)
                 break;
         }
     }
-    // 
+    // Adds a new <style> for every saved .css script for the active website.
     else if(request.todo ==="changeCSS" && (!page_loaded || update))
     {
         //chrome.runtime.sendMessage({todo:"insertCSS",code:request.code});
@@ -123,6 +123,59 @@ function manipulate(request, update)
 
 function main()
 {
+    var clickedEl = null;
+    var selectedEl = null;
+    // Gets the element that was clicked on.
+    document.addEventListener("mousedown", function(event){
+        //right click
+        if(event.button == 2) { 
+            let current_elem = event.target;
+            let path = "";
+            
+            while(current_elem.id === "")
+            {
+                if(current_elem.className === "")
+                {
+                    path = current_elem.nodeName.toLowerCase()+" "+path;
+                }
+                else
+                {
+                    let classname = current_elem.className
+                    if(classname.includes(" "))
+                    { 
+                        classname = classname.replace(new RegExp(" ", 'g'), ".");
+                    }
+                    path = "."+classname+" "+path;
+                }
+                if(current_elem.parentNode===null)
+                {
+                    break;
+                }
+                current_elem = current_elem.parentNode;
+            }
+            if(current_elem.id != "")
+            {
+                let id = current_elem.id;
+                if(id.includes(" "))
+                {
+                    id = id.split(" ")[0];
+                }
+                path = "#"+id+ " "+ path;
+            }
+            clickedEl = path;
+            
+        }
+    }, true);
+    // Saves the clicked on element to the clipboard.
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if(request == "getClickedEl") {
+            navigator.clipboard.writeText(clickedEl);
+        }
+        if(request == "getSelectedEl") {
+            navigator.clipboard.writeText(selectedEl);
+        }
+    });
+
     // send message to give the popup permission to show up.
     chrome.runtime.sendMessage({todo:"showpage"});
     // listen for requests.

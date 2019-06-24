@@ -33,6 +33,7 @@
         "tabs",
         "storage",
         "activeTab",
+        "contextMenus",
         "<all_urls>"
     ]
 }
