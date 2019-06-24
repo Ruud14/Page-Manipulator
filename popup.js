@@ -5,12 +5,12 @@ window.onload = function statup()
     main()
 }
 // Inserts code into the current site.
-function insert(todo,code,position,mode)
+function insert(todo,code,position,mode,title)
 // todo shoud be > changeHTML, changeCSS or changeJS
 {
     chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
     {
-        chrome.tabs.sendMessage(tabs[0].id, {todo: todo, code: code, position:position,mode:mode})
+        chrome.tabs.sendMessage(tabs[0].id, {todo: todo, code: code, position:position,mode:mode,title:title});
     })
     
 }
@@ -355,7 +355,7 @@ class Navigation
             let position = this.position_selection.options[this.position_selection.selectedIndex].value;
             let todo = "change"+this.editor.get_current_filetype();
             let mode = this.mode_selection.options[this.mode_selection.selectedIndex].value;
-            insert(todo,current_text,position,mode);
+            insert(todo,current_text,position,mode,current_file_name);
 
         }.bind(this);
 

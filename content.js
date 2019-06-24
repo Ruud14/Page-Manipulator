@@ -1,5 +1,6 @@
 load();
 let page_loaded = false;
+let added_css = [];
 window.onload = function statup()
 {
     page_loaded = true;
@@ -34,8 +35,8 @@ function load()
             }
             if(active_websites.includes("all"))
             {
-                let req = {todo: todo, code: filetext, position:position, mode:mode}
-                manipulate(req);
+                let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename}
+                manipulate(req,false);
             }
             else if(mode === "recursive")
             {
@@ -44,8 +45,8 @@ function load()
                     let substring = url.substring(0,x);
                     if(active_websites.includes(substring))
                     {
-                        let req = {todo: todo, code: filetext, position:position, mode:mode}
-                        manipulate(req);
+                        let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename}
+                        manipulate(req,false);
                         break;
                     }
                 } 
@@ -54,25 +55,25 @@ function load()
             {
                 if(active_websites.includes(url))
                 {
-                    let req = {todo: todo, code: filetext, position:position, mode:mode}
-                    manipulate(req);
+                    let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename}
+                    manipulate(req,false);
                 }
             }
         }   
     });
 }
 
-function manipulate(request)
+function manipulate(request, update)
 {
-    if(request.todo==="changeHTML" && page_loaded)
+    if(request.todo==="changeHTML" && (page_loaded||update))
     {
         let body = document.body;
         switch(request.position)
         {
-            case "top":
+            case "bottom":
                 body.insertAdjacentHTML('beforeEnd',request.code);
                 break;
-            case "bottom":
+            case "top":
                 body.insertAdjacentHTML('afterBegin',request.code);
                 break;
             case "replace":
@@ -80,25 +81,43 @@ function manipulate(request)
                 break;
         }
     }
-    else if(request.todo ==="changeCSS" && !page_loaded)
+    // 
+    else if(request.todo ==="changeCSS" && (!page_loaded || update))
     {
-        chrome.runtime.sendMessage({todo:"insertCSS",code:request.code});
+        //chrome.runtime.sendMessage({todo:"insertCSS",code:request.code});
         // old method:
-        // let head = document.head;
-        // let style = document.createElement('style');
-        // style.type = 'text/css';
-        // style.appendChild(document.createTextNode(request.code));
-        // head.appendChild(style);
+        let found_elements = [];
+        added_css.forEach(function(element)
+        {
+            if(element[0]===request.title)
+            {
+                found_elements.push(request.title);
+                element[1].childNodes[0].nodeValue = request.code;
+            }
+        })
+        
+        if(!found_elements.includes(request.title))
+        {
+            let head = document.head;
+            let style = document.createElement('style');
+            style.type = 'text/css';
+            style.appendChild(document.createTextNode(request.code));
+            head.appendChild(style);
+            let array_item = [request.title,style]
+            added_css.push(array_item);
+        }
     }
-    else if(request.todo ==="changeJS" && page_loaded)
+    else if(request.todo ==="changeJS" && (page_loaded||update))
     {
         //chrome.runtime.sendMessage({todo:"insertJS",code:request.code});
         // old method:
+        
         let head = document.head;
         let script = document.createElement('script');
         script.textContent = request.code;
         head.appendChild(script);
-        script.remove();
+        added_js = script;
+        script.remove();   
     }
 }
 
@@ -109,7 +128,7 @@ function main()
     // listen for requests.
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
     {
-        manipulate(request);
+        manipulate(request,true);
     })
     
 }
