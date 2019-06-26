@@ -1,11 +1,13 @@
 load();
 let page_loaded = false;
+// Array that consists of ['filename'.css,node] pairs.
 let added_css = [];
 window.onload = function statup()
 {
     page_loaded = true;
     main();
     load();
+    update_badge();
 }
 
 
@@ -23,6 +25,7 @@ function load()
             let filename = file_data["filename"];
             let filetext = file_data["text"];
             let position = file_data["position"];
+            let active = file_data["active"];
             let mode = file_data["mode"];
             let active_websites = file_data["active_websites"].split('\n');
             let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
@@ -35,7 +38,7 @@ function load()
             }
             if(active_websites.includes("all"))
             {
-                let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename}
+                let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename, active:active}
                 manipulate(req,false);
             }
             else if(mode === "recursive")
@@ -45,7 +48,7 @@ function load()
                     let substring = url.substring(0,x);
                     if(active_websites.includes(substring))
                     {
-                        let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename}
+                        let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename, active:active}
                         manipulate(req,false);
                         break;
                     }
@@ -55,16 +58,72 @@ function load()
             {
                 if(active_websites.includes(url))
                 {
-                    let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename}
+                    let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename, active:active}
                     manipulate(req,false);
                 }
             }
         }   
     });
 }
+// checks if a file is active or not.
+function get_status(filename)
+{
+    if(filename.endsWith(".css"))
+    {
+        for(let element of added_css)
+        {
+            if(element[0]===filename)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+}
 
+function update_badge()
+{
+    let found_elements = false;
+    for(let element of added_css)
+    {
+        if(element.active)
+        {
+            found_elements = true;
+        }   
+    }
+    if(!found_elements)
+    {
+        chrome.runtime.sendMessage({todo:"SetBadge", value:"Off"});
+    }
+}
+
+function remove_manipulation(request)
+{
+    if(request.todo=="removeCSS")
+    {
+        for(let element of added_css)
+        {
+            if(element[0]===request.value)
+            {
+                let index = added_css.indexOf(element);
+                element[1].remove();
+                added_css.splice(index,1);
+                break;
+            }
+        }
+    }
+    update_badge();
+}
+
+
+// Manipulates the page.
 function manipulate(request, update)
 {
+    if(request.active === false && !update)
+    {
+        return;
+    }
+    chrome.runtime.sendMessage({todo:"SetBadge", value:"On"});
     if(request.todo==="changeHTML" && (page_loaded||update))
     {
         let body = document.body;
@@ -166,22 +225,29 @@ function main()
             
         }
     }, true);
-    // Saves the clicked on element to the clipboard.
+    
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        if(request == "getClickedEl") {
+        // Saves the clicked on element to the clipboard.
+        if(request.todo === "getClickedEl") {
             navigator.clipboard.writeText(clickedEl);
         }
-        if(request == "getSelectedEl") {
+        else if(request.todo === "getSelectedEl") {
             navigator.clipboard.writeText(selectedEl);
         }
-    });
-
-    // send message to give the popup permission to show up.
-    chrome.runtime.sendMessage({todo:"showpage"});
-    // listen for requests.
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
-    {
-        manipulate(request,true);
-    })
-    
+        else if(request.todo === "getStatus")
+        {
+            let resp = get_status(request.value);
+            sendResponse({response:resp});
+        }
+        else if(["removeCSS","removeJS","removeHTML"].includes(request.todo))
+        {
+            remove_manipulation(request);
+        }
+        if(["changeHTML","changeCSS","changeJS"].includes(request.todo))
+        {
+            // send message to change the badge to display "On"
+            manipulate(request,true);
+        }
+        
+    });    
 }

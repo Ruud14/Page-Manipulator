@@ -1,10 +1,14 @@
 
-// listen to requests.
+// Have the popup display off by default.
+chrome.browserAction.setBadgeText({text:"Off"});
+// Listen to requests.
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
-    if(request.todo=="showpage")
+
+    // Change the value of the badge.
+    if(request.todo=="SetBadge")
     {
-        show_page();
+        chrome.browserAction.setBadgeText({text:request.value});
     }
     // old method:
     // else if(request.todo =="insertCSS")
@@ -14,13 +18,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 })
 
 //Allows the popup to show up.
-function show_page()
-{
-    chrome.tabs.query({active:true,currentWindow:true}, function(tabs)
-    {
-        chrome.pageAction.show(tabs[0].id);
-    })
-}
+
 
 
 let CopyCSSMenuItem = {
@@ -49,7 +47,8 @@ chrome.contextMenus.onClicked.addListener(function(clickdata)
     {
         // Send message to content script to get the element of what was clicked on.
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-            chrome.tabs.sendMessage(tabs[0].id, "getClickedEl", function(clickedEl) {});  
+            //chrome.tabs.sendMessage(tabs[0].id, "getClickedEl", function(clickedEl) {});  
+            chrome.tabs.sendMessage(tabs[0].id, {todo: "getClickedEl"});
         });
         
     }
@@ -58,6 +57,7 @@ chrome.contextMenus.onClicked.addListener(function(clickdata)
 // chrome.storage.onChanged.addListener(function(changes, storageName){
 //     chrome.browserAction.setBadgeText({"text": changes.total.newValue.toString()});
 // });
+
 
 
 

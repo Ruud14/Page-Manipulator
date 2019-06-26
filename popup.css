@@ -20,6 +20,14 @@ header{
     margin: 2px; 
     padding: 0;
 }
+.labeltext
+{
+    color:#ff8800;
+    display: inline;
+    padding:5px;
+    bottom: 3px;
+    position:relative;
+}
 .nav-button
 {
     min-width: 120px;
@@ -34,10 +42,14 @@ header{
     font-weight: bold;
     text-decoration: none;
 }
-.back-button
+.small-button
 {
+    display: inline;
     min-width: 50px;
+    max-width: 60px;
     min-height: 20px;
+    margin-left: 5px;
+    margin-right: 0px;
 }
 .border
 {
@@ -129,6 +141,13 @@ header{
 }
 .selection
 {
+    background-color:#444444;
+    color:#ff8800;
+    min-width: 120px;
+}
+.checkbox
+{
+    display: inline;
     background-color:#444444;
     color:#ff8800;
 }

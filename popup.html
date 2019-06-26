@@ -17,7 +17,10 @@
         <div id="nav-area" class="border">
             <ul id="navbar" >
                 <li>
-                    <input type="submit" value="Back" id="back-button" class="nav-button back-button">
+                    <div id="back-div">
+                        <input type="submit" value="Back" id="back-button" class="nav-button small-button">
+                        <input type="submit" value="Reload" id="reload-button" class="nav-button small-button">
+                    </div>
                 </li>
                 <li>
                     <input type="submit" value="JavaScript" id="JS-button" class="nav-button">
@@ -32,8 +35,20 @@
                     <input type="submit" value="+ New +" id="new-button" class="nav-button">
                 </li>
                 <li>
+                    <div id="active-div">
+                        <h3 class="labeltext" id=active-label>Active:</h3>
+                        <input type="checkbox" id="active-checkbox" class="checkbox">
+                    </div> 
+                </li>
+                <li>
                     <textarea id="enabled-sites-text-area" placeholder="Active sites URL or 'all'">
                     </textarea>
+                </li>
+                <li>
+                    <select class="selection" id="mode-selection">
+                            <option value="exact">Exact</option>
+                            <option value="recursive">Recursive</option>
+                    </select>
                 </li>
                 <li>
                     <select class="selection" id="position-selection">
@@ -41,13 +56,13 @@
                         <option value="bottom">Bottom</option>
                         <option value="replace">Replace</option>
                     </select>
-                    <select class="selection" id="mode-selection">
-                            <option value="exact">Exact</option>
-                            <option value="recursive">Recursive</option>
-                    </select>
+                </li>
+
+                <li>
+                    <input type="submit" value="Manipulate" id="try-button" class="nav-button">
                 </li>
                 <li>
-                    <input type="submit" value="Try" id="try-button" class="nav-button">
+                    <input type="submit" value="Remove Manip." id="remove-try-button" class="nav-button">
                 </li>
                 <li>
                     <input type="submit" value="Delete" id="delete-button" class="nav-button">

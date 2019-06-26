@@ -9,12 +9,13 @@
         "48":"icon48.png",
         "16":"icon16.png"
     },
-    "page_action":
+    "browser_action":
     {
         "default_icon": "icon16.png",
         "default_popup": "popup.html",
         "default_title": "Page Manipulator"
     },
+  
     "background":
     {
         "scripts": ["eventpage.js"],
@@ -33,7 +34,6 @@
         "tabs",
         "storage",
         "activeTab",
-        "contextMenus",
-        "<all_urls>"
+        "contextMenus"
     ]
 }

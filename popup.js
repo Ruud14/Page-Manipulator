@@ -230,6 +230,7 @@ class Editor
         current_file_data.active_websites = active_websites;
         current_file_data.position = position;
         current_file_data.mode = mode;
+        current_file_data.active = this.navigator.active_checkbox.checked;
         all_new_data[current_file_name] = current_file_data;
 
         chrome.storage.sync.set(all_new_data, function() {
@@ -241,7 +242,7 @@ class Editor
 // 
 class File
 {
-    constructor(input, filename, text, active_websites, position,mode)
+    constructor(input, filename, text, active_websites, position,mode,active)
     {
         this.title = filename;
         this.text = text;
@@ -250,6 +251,7 @@ class File
         this.position = position;
         this.mode= mode;
         this.element = input;
+        this.active = active;
         this.kind = filename_to_kind(filename);
     }
 }
@@ -262,19 +264,26 @@ class Navigation
          // Getting all the html elements.
         this.navbar = document.getElementById("navbar");
         this.back_button = document.getElementById("back-button");
+        this.back_div = document.getElementById("back-div");
+        this.reload_button = document.getElementById("reload-button");
         this.new_button = document.getElementById("new-button");
         this.js_button = document.getElementById("JS-button");
         this.css_button = document.getElementById("CSS-button");
         this.html_button = document.getElementById("HTML-button");
         this.try_button = document.getElementById("try-button");
+        this.remove_try_button = document.getElementById("remove-try-button");
         this.make_button = document.getElementById("make-button");
         this.delete_button = document.getElementById("delete-button");
         this.filename_textfield = document.getElementById("filename-textfield");
         this.enabled_sites_text_area = document.getElementById("enabled-sites-text-area");
         this.position_selection = document.getElementById("position-selection");
         this.mode_selection = document.getElementById("mode-selection");
+        this.active_label = document.getElementById("active-label");
+        this.active_checkbox = document.getElementById("active-checkbox");
+        this.active_div = document.getElementById("active-div");
 
         // Autosave when changing the position, mode or enabled sites.
+        this.active_checkbox.onchange = function(){this.editor.save_current_file()}.bind(this);
         this.position_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
         this.position_selection.onchange = function(){this.editor.save_current_file()}.bind(this);
         this.mode_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
@@ -284,7 +293,10 @@ class Navigation
 
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
+        // These arrays only contain the items that are always there.
         this.main_nav_buttons = [this.js_button,this.css_button,this.html_button];
+        this.editor_menu_items = [this.back_div,this.try_button, this.enabled_sites_text_area,this.mode_selection,this.delete_button, this.active_div];
+        this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div]; 
         this.nav_items =[];
         this.bind_buttons();
         this.disable_all_menus();
@@ -317,6 +329,12 @@ class Navigation
             this.enable_menu_of_kind("HTML");
         }.bind(this);
         
+        this.reload_button.onclick = function()
+        {
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+            });
+        }
         // Go back to the main menu by clicking the back button.
         this.back_button.onclick = function() 
         {   
@@ -324,7 +342,7 @@ class Navigation
             this.disable_all_menus();
             this.enable_menu_of_kind("MAIN");
             // disable the backbutton.
-            this.back_button.style.display = "none";
+            this.back_div.style.display = "none";
             // change the main nav buttons to be visible.
             this.main_nav_buttons.forEach(function(element)
             {
@@ -355,9 +373,23 @@ class Navigation
             let position = this.position_selection.options[this.position_selection.selectedIndex].value;
             let todo = "change"+this.editor.get_current_filetype();
             let mode = this.mode_selection.options[this.mode_selection.selectedIndex].value;
+            this.remove_try_button.style.display = "block";
+            this.try_button.value="Update Manip.";
+            show_message("Page Manipulated");
             insert(todo,current_text,position,mode,current_file_name);
 
         }.bind(this);
+        // remove the manipulation from the webpage.
+        this.remove_try_button.onclick = function()
+        {
+            this.remove_try_button.style.display = "none";
+            this.try_button.value="Manipulate";
+            chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
+                {
+                    chrome.tabs.sendMessage(tabs[0].id, {todo:"removeCSS", value: this.editor.active_file});
+                }.bind(this))
+            show_message("Removed Manipulation");
+        }.bind(this)
 
         this.delete_button.onclick = function()
         {
@@ -389,7 +421,6 @@ class Navigation
                         filename+='.'+this.current_menu.toLowerCase();
                     }
                     let input = this.add_nav_button(filename);
-
                     // Add functionallity to the button.
                     input.onclick = function()
                     {
@@ -398,7 +429,7 @@ class Navigation
                         this.enable_menu_of_kind("EDITOR");
                     }.bind(this);
 
-                    let new_nav_item = new File(input, filename,"","","top");
+                    let new_nav_item = new File(input, filename,"","","top",this.active_checkbox.checked);
                     this.nav_items.push(new_nav_item);
                     
                     this.editor.open_file(filename,"");
@@ -448,6 +479,7 @@ class Navigation
                 let filetext = file_data["text"];
                 let position = file_data["position"];
                 let mode = file_data["mode"];
+                let active = file_data["active"];
                 let input = this.add_nav_button(filename);
 
                 // Add functionallity to the button.
@@ -458,7 +490,7 @@ class Navigation
                     this.enable_menu_of_kind("EDITOR");
                 }.bind(this);
 
-                let nav_item = new File(input, filename,filetext,active_websites,position,mode);
+                let nav_item = new File(input, filename,filetext,active_websites,position,mode,active);
                 this.nav_items.push(nav_item);
   
             }
@@ -497,6 +529,13 @@ class Navigation
         this.nav_items.forEach(function(element)
         {
             let li = document.createElement('li');
+            if(element.active)
+            {
+                element.element.style.opacity = 1;
+            }
+            else{
+                element.element.style.opacity = 0.5;
+            }
             li.appendChild(element.element);
             self.navbar.appendChild(li);
         })
@@ -514,45 +553,61 @@ class Navigation
             case "CSS":
             case "HTML":
                 this.disable_menu_of_kind("MAIN");
-                this.back_button.style.display = "block";
+                this.back_div.style.display = "block";
                 let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
                 Array.from(all_elements).forEach(function(element)
                 {
                     element.style.display = "block";
                 })
                 this.new_button.style.display = "block";
-                this.current_menu = kind;
                 break;
             case "MAIN":
                 this.main_nav_buttons.forEach(function(element)
                 {
                     element.style.display = "block";
                 })
-                this.current_menu = "MAIN";
                 break;
             case "EDITOR":
-                this.current_menu = "EDITOR";
-                this.back_button.style.display = "block";
-                this.try_button.style.display = "block";
-                this.enabled_sites_text_area.style.display = "block";
-                this.delete_button.style.display = "block";
-    
+                this.editor_menu_items.forEach(function(element)
+                {
+                    element.style.display = "block";
+                })
+                
+                chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
+                {
+                    chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: this.editor.active_file}, function(response) {
+                        if(response.response===true)
+                        {
+                            this.remove_try_button.style.display = "block";
+                            this.try_button.value = "Remove Manip."
+                        }
+                    }.bind(this))
+                }.bind(this))
+
                 //only display the position option when html.
                 if(this.editor.active_file.endsWith(".html"))
                 {
                     this.position_selection.style.display = "block";
                 }
-                this.mode_selection.style.display = "block";
+                
     
                 //add the active websites to the enabled_sites_text_area.
                 let index = this.get_nav_item_index_by_title(this.editor.active_file);
+                if(this.nav_items[index].active)
+                {
+                    this.active_checkbox.checked = true;
+                }
+                else
+                {
+                    this.active_checkbox.checked = false;
+                }
                 if(this.nav_items[index])
                 {
                     this.enabled_sites_text_area.value = this.nav_items[index].active_websites;
                     let positoin_options = this.position_selection.options;
                     for(let i=0;i<positoin_options.length;i++)
                     {
-                        if(positoin_options[i].value === this.nav_items[index].position.toLowerCase())
+                        if(positoin_options[i].value === String(this.nav_items[index].position).toLowerCase())
                         {
                             this.position_selection.selectedIndex = i;
                             break;
@@ -563,7 +618,7 @@ class Navigation
                     {
                         if(this.nav_items[index].mode != null)
                         {
-                            if(mode_options[i].value === this.nav_items[index].mode.toLowerCase())
+                            if(mode_options[i].value === String(this.nav_items[index].mode).toLowerCase())
                             {
                                 this.mode_selection.selectedIndex = i;
                                 break;
@@ -573,11 +628,17 @@ class Navigation
                 } 
                 break;
             case "NEW":
-                this.make_button.style.display = "block";
-                this.filename_textfield.style.display = "block";
-                this.back_button.style.display = "block";
+                this.new_menu_items.forEach(function(element)
+                {
+                    element.style.display = "block";
+                })
                 break;
         }
+        if(kind != "NEW")
+        {
+            this.current_menu = kind;
+        }
+        
     }
 
     // Disables the specified menu. options: "JS","CSS","HTML","MAIN","EDITOR","NEW".
@@ -588,7 +649,7 @@ class Navigation
             case "JS":
             case "CSS":
             case "HTML":
-                this.back_button.style.display = "none";
+                this.back_div.style.display = "none";
                 let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
                 Array.from(all_elements).forEach(function(element)
                 {
@@ -603,18 +664,21 @@ class Navigation
                 })
                 break;
             case "EDITOR":
-                this.back_button.style.display = "none";
-                this.try_button.style.display = "none";
-                this.enabled_sites_text_area.style.display = "none";
+                this.editor_menu_items.forEach(function(element)
+                {
+                    element.style.display = "none";
+                })
+                // These items aren't in the array because they aren't always there, so we disable them manually.
                 this.position_selection.style.display = "none";
-                this.mode_selection.style.display = "none"
-                this.delete_button.style.display = "none";
+                this.remove_try_button.style.display = "none";
+                this.try_button.value="Manipulate";
                 break;
             case "NEW":
-                this.make_button.style.display = "none";
-                this.filename_textfield.style.display = "none";
-                this.back_button.style.display = "none";
-                break;   
+                this.new_menu_items.forEach(function(element)
+                {
+                    element.style.display = "none";
+                })
+                break;        
         }
     }
 
