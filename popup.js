@@ -3,6 +3,7 @@ window.onload = function statup()
     // Enable to clear the storage.
     //chrome.storage.sync.clear();
     main()
+    
 }
 // Inserts code into the current site.
 function insert(todo,code,position,mode,title)
@@ -36,6 +37,12 @@ class Editor
         this.max_open_files = 6;
         this.active_file = "none";
         this.navigator = navigator;
+        this.editor = ace.edit("editor");
+        this.editor.getSession().setMode("ace/mode/javascript");
+        this.editor.setTheme("ace/theme/terminal");
+        this.EditSession = require("ace/edit_session").EditSession;
+        this.editor_element = document.getElementById("editor");
+        this.editor_element.style.display = "none";
     }
     
     // Opens a new editor window if the file doesn't exist yet. 
@@ -44,8 +51,13 @@ class Editor
     {
         if(this.files.length < this.max_open_files)
         {
+            let all_open_filenames = [];
+            for(let element of this.files)
+            {
+                all_open_filenames.push(element[0]);
+            }
             // check if the file isn't already open.
-            if(this.files.includes(title))
+            if(all_open_filenames.includes(title))
             {
                 this.activate_file_by_name(title);
             }
@@ -63,33 +75,35 @@ class Editor
     activate_file_by_name(title)
     {
         this.active_file = title;
-        let all_textfields = document.getElementsByClassName("textfield");
-            Array.from(all_textfields).forEach(function(element)
+        for(let element of this.files)
+        {
+            if(element[0] === title)
             {
-                // Enable the right text area.
-                if(element.id === "textfield-"+title)
-                {
-                    element.style.display = 'block';
-                    element.focus();
-                }
-                // Disable all other textareas
-                else 
-                    element.style.display = 'none';
-            })
+                this.editor.setSession(element[1]);
+                this.editor_element.style.display = "block";
+            }
+        }
         
     }
     // Make the active window button look darker to make it the obvious open file.
     make_button_active(title)
     {
         let all_buttons = document.getElementsByClassName("file-title-button");
+        let all_close_buttons = document.getElementsByClassName("close-button");
         Array.from(all_buttons).forEach(function(element)
         {
             // make the button active
             if(element.value===title)
-                element.style.backgroundColor="#222222";
+            {
+                element.style.opacity = 1;
+                all_close_buttons[Array.from(all_buttons).indexOf(element)].style.opacity = 1;
+            }
             // make the other buttons inactive.
             else
-                element.style.backgroundColor="#444444";
+            {
+                element.style.opacity = 0.5;
+                all_close_buttons[Array.from(all_buttons).indexOf(element)].style.opacity = 0.5;
+            }
         })
         
     }
@@ -97,8 +111,6 @@ class Editor
     close_file(title)
     {
         let all_open_files = document.getElementsByClassName("open-files-list-item");
-        let all_textfields = document.getElementsByClassName("textfield");
-
         //Delete the file button.
         Array.from(all_open_files).forEach(function(element)
         {
@@ -108,18 +120,10 @@ class Editor
             }
         })
         
-        //Delete the textarea.
-        Array.from(all_textfields).forEach(function(element)
-        {
-            if(element.id === "textfield-"+title)
-            {
-                element.parentNode.removeChild(element);
-            }
-        })
         // Remove the file from this.files.
         for(let i=0; i<this.files.length;i++)
         {
-            if(this.files[i] === title)
+            if(this.files[i][0] === title)
             {
                 this.files.splice(i,1);
             }
@@ -128,7 +132,7 @@ class Editor
         // If you close the last open file, the editmenu will go away and be replaced with the main menu.
         if(this.files.length == 0)
         {
-            
+            this.editor_element.style.display = "none";
             this.navigator.disable_all_menus();
             this.navigator.enable_menu_of_kind("MAIN");
         }
@@ -162,27 +166,35 @@ class Editor
         li.appendChild(close_button);
         ul.appendChild(li);
         this.make_button_active(title);
-        this.files.push(title);
     }
     // Creates a editor window for the file with the specified name and text.
     create_window(title,text)
     {
-        let write_area = document.getElementById("write-area");
-        let textfield = document.createElement('textarea');
-        let textnode = document.createTextNode(text);
-        textfield.className = "textfield";
-        textfield.id = "textfield-"+title;
-        textfield.placeholder = "Code here";
-        textfield.appendChild(textnode);
-        textfield.onkeyup = function(){ this.save_current_file();}.bind(this);
-        textfield.onchange = function(){ this.save_current_file();}.bind(this);
-        write_area.appendChild(textfield);
+        let new_session = new this.EditSession(text);
+        new_session.setUseWorker(false);
+        if(title.endsWith(".js"))
+        {
+            new_session.setMode("ace/mode/javascript");
+        }
+        else if(title.endsWith(".css"))
+        {
+            new_session.setMode("ace/mode/css");
+        }
+        else if(title.endsWith(".html"))
+        {
+            new_session.setMode("ace/mode/html");
+        }
+        new_session.on('change', function(delta) {
+            this.save_current_file();
+        }.bind(this));
+        this.files.push([title,new_session]);
     }
     // Returns the text of the current edit menu.
     get_current_text()
     {
-        let current_textfield = document.getElementById("textfield-"+this.active_file);
-        return current_textfield.value;
+        let current_text = this.editor.session.getValue();
+        return current_text;
+
     }
     // Returns the the filetype in "FILEEXTENSION" format.
     // "JS" for javascript.
@@ -525,21 +537,27 @@ class Navigation
                 element.parentNode.parentNode.removeChild(element.parentNode);
             })
         }
-        self=this
         // populate the navbar.
         this.nav_items.forEach(function(element)
         {
             let li = document.createElement('li');
-            if(element.active)
+            chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
             {
-                element.element.style.opacity = 1;
-            }
-            else{
-                element.element.style.opacity = 0.5;
-            }
+                chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: element.title}, function(response) {
+                    if(response.response===true)
+                    {
+                        element.element.style.opacity = 1;
+                    }
+                    else
+                    {
+                        element.element.style.opacity = 0.5;
+                    }
+                }.bind(this))
+            }.bind(this))
+            
             li.appendChild(element.element);
-            self.navbar.appendChild(li);
-        })
+            this.navbar.appendChild(li);
+        }.bind(this))
     };
 
     // Enables the specified menu. options: "JS","CSS","HTML","MAIN","EDITOR","NEW".
@@ -580,7 +598,7 @@ class Navigation
                         if(response.response===true)
                         {
                             this.remove_try_button.style.display = "block";
-                            this.try_button.value = "Remove Manip."
+                            this.try_button.value = "Update Manip."
                         }
                     }.bind(this))
                 }.bind(this))

@@ -2,7 +2,7 @@
 
 Project status: not finished
 
-WARNING: This project was created in a few days and definitely isn't perfect (yet :D)!
+WARNING: I created this project in a few days and definitely isn't perfect (yet :D)!
 This works on most sites, but there are some exceptions!
 
 **Chrome Extension to inject HTML, CSS or JavaScript any web-page.**
@@ -32,9 +32,13 @@ for free, of course :D
     - Test a website you're working on.
     - Whatevery you can imagine, be creative :D
 
-
 **What I learned:**
 - The process of making extensions.
 - Basics of JavaScript.
 - Chrome storage API.
+
+
+The editor I used since the second release is Ace editor.
+Check it out here: https://ace.c9.io/
+
 

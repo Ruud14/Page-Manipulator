@@ -4,7 +4,8 @@
         <title>Page Manipulator</title>
         <script src="popup.js"></script>
         <link rel="stylesheet" type="text/css" href="popup.css">
-
+        <script type="text/javascript" src="libs/ace/ace.js"></script>
+        <script src="libs/ace/src-noconflict/ext-language_tools.js"></script>
     </head>
     <body>
         <header>
@@ -14,7 +15,7 @@
             <hr style="clear:both; border-top: 1px solid #ff8800;"/>
         </header>
         
-        <div id="nav-area" class="border">
+        <div id="nav-area">
             <ul id="navbar" >
                 <li>
                     <div id="back-div">
@@ -77,9 +78,14 @@
 
             </ul>
         </div>
-        <div id="write-area" class="border">
+        <div id="write-area">
             <ul id="open-files-list">
             </ul>
+
+            <div id="editor">
+            </div>
+            
+
             <h4 id="info-text" align="left" class="text">
                 Inject HTML, CSS or JavaScript to your favorite web-pages.
                 Have the changes you make be saved and applied everytime you visit the specified website. <br><br>
