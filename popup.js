@@ -386,7 +386,8 @@ class Navigation
             this.try_button.value="Manipulate";
             chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
                 {
-                    chrome.tabs.sendMessage(tabs[0].id, {todo:"removeCSS", value: this.editor.active_file});
+                    let kind = filename_to_kind(this.editor.active_file);
+                    chrome.tabs.sendMessage(tabs[0].id, {todo:"remove"+kind, value: this.editor.active_file});
                 }.bind(this))
             show_message("Removed Manipulation");
         }.bind(this)

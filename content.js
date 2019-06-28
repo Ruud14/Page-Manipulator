@@ -112,6 +112,14 @@ function remove_manipulation(request)
             }
         }
     }
+    else if(request.todo =="removeHTML")
+    {
+        let html_elements = document.getElementsByTagName('page-manipulator-'+request.value.split('.')[0]);
+        for(let element of html_elements)
+        {
+            element.remove();
+        }
+    }
     update_badge();
 }
 
@@ -126,19 +134,35 @@ function manipulate(request, update)
     chrome.runtime.sendMessage({todo:"SetBadge", value:"On"});
     if(request.todo==="changeHTML" && (page_loaded||update))
     {
-        let body = document.body;
-        switch(request.position)
+        let html_elements = document.getElementsByTagName('page-manipulator-'+request.title.split('.')[0]);
+        if(html_elements.length === 0)
         {
-            case "bottom":
-                body.insertAdjacentHTML('beforeEnd',request.code);
-                break;
-            case "top":
-                body.insertAdjacentHTML('afterBegin',request.code);
-                break;
-            case "replace":
-                body.innerHTML= request.code;
-                break;
+            let page_manipulator = document.createElement('page-manipulator-'+request.title.split('.')[0]);
+            page_manipulator.innerHTML = request.code;
+            let body = document.body;
+            
+            
+            switch(request.position)
+            {
+                case "bottom":
+                    body.insertAdjacentHTML('beforeEnd',page_manipulator.outerHTML);
+                    break;
+                case "top":
+                    body.insertAdjacentHTML('afterBegin',page_manipulator.outerHTML);
+                    break;
+                case "replace":
+                    body.innerHTML= page_manipulator.outerHTML;
+                    break;
+            }
         }
+        else
+        {
+            for(let element of html_elements)
+            {
+                element.innerHTML = request.code;
+            }
+        }
+        
     }
     // Adds a new <style> for every saved .css script for the active website.
     else if(request.todo ==="changeCSS" && (!page_loaded || update))
