@@ -2,8 +2,9 @@
 
 Project status: not finished
 
-WARNING: I created this project in a few days and definitely isn't perfect (yet :D)!
+WARNING: This project was created in a short period of time and definitely isn't perfect (yet :D)!
 This works on most sites, but there are some exceptions!
+If you'd like to see any specific improvements or found any bugs, let me know in the "issues".
 
 **Chrome Extension to inject HTML, CSS or JavaScript any web-page.**
 Inject HTML, CSS or JavaScript to your favorite web-pages.
@@ -25,12 +26,20 @@ If you don't know how to do this, here are the steps.
 This will soon be in the chrome extensions store.
 for free, of course :D
 
-- **Fun use cases**:
-    - Cheat simple games like the t-rex game.
-    - Fool your friends by showing them something fake on a website.
-    - Make your own dark-theme for any website.
-    - Test a website you're working on.
-    - Whatevery you can imagine, be creative :D
+**Functionalities**
+- Have HTML, CSS and/or Javascript automatically added to all pages or the pages you specify.
+- Run custom CSS **Before** the page is fully loaded so you won't see the origial page first.
+- Inject Javascript on the go.
+- Add/Remove/Change the HTML and CSS on the go.
+- Right click on any element on a page to get the full CSS path.
+- Automatically save and sync scripts you make.
+
+**Fun use cases**:
+- Cheat simple games like the t-rex game.
+- Fool your friends by showing them something fake on a website.
+- Make your own dark-theme for any website.
+- Test a website you're working on.
+- Whatevery you can imagine, be creative :D
 
 **What I learned:**
 - The process of making extensions.
