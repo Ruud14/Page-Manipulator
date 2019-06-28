@@ -2,8 +2,9 @@
 
 Project status: not finished
 
-WARNING: This project was created in a few days and definitely isn't perfect (yet :D)!
+WARNING: This project was created in a short period of time and definitely isn't perfect (yet :D)!
 This works on most sites, but there are some exceptions!
+If you'd like to see any specific improvements or found any bugs, let me know in the "issues".
 
 **Chrome Extension to inject HTML, CSS or JavaScript any web-page.**
 Inject HTML, CSS or JavaScript to your favorite web-pages.
