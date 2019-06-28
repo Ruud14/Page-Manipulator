@@ -33,12 +33,12 @@ for free, of course :D
 - Right click on any element on a page to get the full CSS path.
 - Automatically save and sync scripts you make.
 
-- **Fun use cases**:
-    - Cheat simple games like the t-rex game.
-    - Fool your friends by showing them something fake on a website.
-    - Make your own dark-theme for any website.
-    - Test a website you're working on.
-    - Whatevery you can imagine, be creative :D
+**Fun use cases**:
+- Cheat simple games like the t-rex game.
+- Fool your friends by showing them something fake on a website.
+- Make your own dark-theme for any website.
+- Test a website you're working on.
+- Whatevery you can imagine, be creative :D
 
 
 **What I learned:**
