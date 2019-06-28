@@ -10,8 +10,8 @@
     <body>
         <header>
             
-            <h2 class="text" style="text-align:left;float:left;">Page Manipulator</h2> 
-            <h3 id="message-text" class="text">Context</h3> 
+            <h2 class="text" style="display: inline; margin: 0px; padding: 0px;">Page Manipulator</h2> 
+            <h3 id="message-text" class="text">Saved!</h3> 
             <hr style="clear:both; border-top: 1px solid #ff8800;"/>
         </header>
         
@@ -42,16 +42,19 @@
                     </div> 
                 </li>
                 <li>
-                    <textarea id="enabled-sites-text-area" placeholder="Active sites URL or 'all'">
+                    <h3 class="labeltext" id=active-websites-label>Active websites:</h3>
+                    <textarea id="enabled-sites-text-area" placeholder="URL or 'all'">
                     </textarea>
                 </li>
                 <li>
+                    <h3 class="labeltext" id=matching-pages-label>matching pages:</h3>
                     <select class="selection" id="mode-selection">
                             <option value="exact">Exact</option>
                             <option value="recursive">Recursive</option>
                     </select>
                 </li>
                 <li>
+                    <h3 class="labeltext" id=position-label>position on page:</h3>
                     <select class="selection" id="position-selection">
                         <option value="top">Top</option>
                         <option value="bottom">Bottom</option>

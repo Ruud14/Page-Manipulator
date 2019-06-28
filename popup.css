@@ -14,14 +14,16 @@ body
     background-color: var(--back-color);
 }
 header{
-    display: inline;
+    text-align: center;
 }
 #message-text
 {
     text-align:right;
     float:right;
-    display: none;
     color:var(--message-color);
+    margin: 0px;
+    padding: 0px;
+    opacity: 0;
 }
 .text
 {
@@ -33,9 +35,9 @@ header{
 {
     color:var(--button-color);
     display: inline;
-    padding:5px;
+    padding-left:5px;
     bottom: 3px;
-    position:relative;
+    margin:1px;
 }
 .nav-button
 {

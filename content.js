@@ -2,6 +2,7 @@ load();
 let page_loaded = false;
 // Array that consists of ['filename'.css,node] pairs.
 let added_css = [];
+let added_js = [];
 window.onload = function statup()
 {
     page_loaded = true;
@@ -79,6 +80,26 @@ function get_status(filename)
         }
         return false;
     }
+    else if(filename.endsWith(".html"))
+    {
+        let html_elements = document.getElementsByTagName('page-manipulator-'+filename.split('.')[0]);
+        if(html_elements.length != 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    else if(filename.endsWith(".js"))
+    {
+        for(let element of added_js)
+        {
+            if(element[0]===filename)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 function update_badge()
@@ -118,6 +139,19 @@ function remove_manipulation(request)
         for(let element of html_elements)
         {
             element.remove();
+        }
+    }
+    else if(request.todo =="removeJS")
+    {
+        for(let element of added_js)
+        {
+            if(element[0]===request.value)
+            {
+                let index = added_js.indexOf(element);
+                element[1].remove();
+                added_js.splice(index,1);
+                break;
+            }
         }
     }
     update_badge();
@@ -167,8 +201,7 @@ function manipulate(request, update)
     // Adds a new <style> for every saved .css script for the active website.
     else if(request.todo ==="changeCSS" && (!page_loaded || update))
     {
-        //chrome.runtime.sendMessage({todo:"insertCSS",code:request.code});
-        // old method:
+        
         let found_elements = [];
         added_css.forEach(function(element)
         {
@@ -192,15 +225,31 @@ function manipulate(request, update)
     }
     else if(request.todo ==="changeJS" && (page_loaded||update))
     {
-        //chrome.runtime.sendMessage({todo:"insertJS",code:request.code});
-        // old method:
-        
-        let head = document.head;
-        let script = document.createElement('script');
-        script.textContent = request.code;
-        head.appendChild(script);
-        added_js = script;
-        script.remove();   
+        let found_elements = [];
+        added_js.forEach(function(element)
+        {
+            if(element[0]===request.title)
+            {
+                found_elements.push(request.title);
+            }
+        })
+        if(!found_elements.includes(request.title))
+        {
+            let head = document.head;
+            let script = document.createElement('script');
+            script.textContent = request.code;
+            head.appendChild(script);
+            added_js.push([request.title,script]);  
+        }
+        else
+        {
+            remove_manipulation(request);
+            let head = document.head;
+            let script = document.createElement('script');
+            script.textContent = request.code;
+            head.appendChild(script);
+            added_js.push([request.title,script]);  
+        }
     }
 }
 

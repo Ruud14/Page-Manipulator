@@ -20,8 +20,8 @@ function show_message(msg)
 {
     let message_text = document.getElementById("message-text");
     message_text.textContent = msg;
-    message_text.style.display = "block";
-    window.setTimeout(function(){ message_text.style.display = "none";},1000);
+    message_text.style.opacity = 1;
+    window.setTimeout(function(){ message_text.style.opacity = 0;},1000);
 }
 // Returns the filetype of the specified filename in the "FILEEXTENSION" format.
 function filename_to_kind(filename)
@@ -83,7 +83,7 @@ class Editor
                 this.editor_element.style.display = "block";
             }
         }
-        
+        this.make_button_active(title);
     }
     // Make the active window button look darker to make it the obvious open file.
     make_button_active(title)
@@ -291,6 +291,9 @@ class Navigation
         this.position_selection = document.getElementById("position-selection");
         this.mode_selection = document.getElementById("mode-selection");
         this.active_label = document.getElementById("active-label");
+        this.active_websites_label = document.getElementById("active-websites-label");
+        this.matching_pages_label = document.getElementById("matching-pages-label");
+        this.position_label = document.getElementById("position-label");
         this.active_checkbox = document.getElementById("active-checkbox");
         this.active_div = document.getElementById("active-div");
 
@@ -307,7 +310,7 @@ class Navigation
         this.current_menu = "MAIN";
         // These arrays only contain the items that are always there.
         this.main_nav_buttons = [this.js_button,this.css_button,this.html_button];
-        this.editor_menu_items = [this.back_div,this.try_button, this.enabled_sites_text_area,this.mode_selection,this.delete_button, this.active_div];
+        this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button, this.active_div];
         this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div]; 
         this.nav_items =[];
         this.bind_buttons();
@@ -607,6 +610,7 @@ class Navigation
                 if(this.editor.active_file.endsWith(".html"))
                 {
                     this.position_selection.style.display = "block";
+                    this.position_label.style.display = "block";
                 }
                 
     
@@ -689,6 +693,7 @@ class Navigation
                 })
                 // These items aren't in the array because they aren't always there, so we disable them manually.
                 this.position_selection.style.display = "none";
+                this.position_label.style.display = "none";
                 this.remove_try_button.style.display = "none";
                 this.try_button.value="Manipulate";
                 break;
