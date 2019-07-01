@@ -172,7 +172,8 @@ header{
 {
     background-color:var(--textarea-color);
     color:var(--button-color);
-    max-width: 90px;
+    max-width: 125px;
+    margin-left: 5px;
 }
 #info-text
 {

@@ -39,7 +39,7 @@ function load()
             }
             if(active_websites.includes("all"))
             {
-                let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename, active:active}
+                let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
                 manipulate(req,false);
             }
             else if(mode === "recursive")
@@ -49,7 +49,7 @@ function load()
                     let substring = url.substring(0,x);
                     if(active_websites.includes(substring))
                     {
-                        let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename, active:active}
+                        let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
                         manipulate(req,false);
                         break;
                     }
@@ -59,7 +59,7 @@ function load()
             {
                 if(active_websites.includes(url))
                 {
-                    let req = {todo: todo, code: filetext, position:position, mode:mode, title:filename, active:active}
+                    let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
                     manipulate(req,false);
                 }
             }
@@ -120,7 +120,7 @@ function update_badge()
 
 function remove_manipulation(request)
 {
-    if(request.todo=="removeCSS")
+    if(request.todo==="removeCSS")
     {
         for(let element of added_css)
         {
@@ -133,7 +133,7 @@ function remove_manipulation(request)
             }
         }
     }
-    else if(request.todo =="removeHTML")
+    else if(request.todo === "removeHTML")
     {
         let html_elements = document.getElementsByTagName('page-manipulator-'+request.value.split('.')[0]);
         for(let element of html_elements)
@@ -141,7 +141,7 @@ function remove_manipulation(request)
             element.remove();
         }
     }
-    else if(request.todo =="removeJS")
+    else if(request.todo === "removeJS")
     {
         for(let element of added_js)
         {
@@ -168,10 +168,10 @@ function manipulate(request, update)
     chrome.runtime.sendMessage({todo:"SetBadge", value:"On"});
     if(request.todo==="changeHTML" && (page_loaded||update))
     {
-        let html_elements = document.getElementsByTagName('page-manipulator-'+request.title.split('.')[0]);
+        let html_elements = document.getElementsByTagName('page-manipulator-'+request.filename.split('.')[0]);
         if(html_elements.length === 0)
         {
-            let page_manipulator = document.createElement('page-manipulator-'+request.title.split('.')[0]);
+            let page_manipulator = document.createElement('page-manipulator-'+request.filename.split('.')[0]);
             page_manipulator.innerHTML = request.code;
             let body = document.body;
             
@@ -205,21 +205,21 @@ function manipulate(request, update)
         let found_elements = [];
         added_css.forEach(function(element)
         {
-            if(element[0]===request.title)
+            if(element[0]===request.filename)
             {
-                found_elements.push(request.title);
+                found_elements.push(request.filename);
                 element[1].childNodes[0].nodeValue = request.code;
             }
         })
         
-        if(!found_elements.includes(request.title))
+        if(!found_elements.includes(request.filename))
         {
             let head = document.head;
             let style = document.createElement('style');
             style.type = 'text/css';
             style.appendChild(document.createTextNode(request.code));
             head.appendChild(style);
-            let array_item = [request.title,style]
+            let array_item = [request.filename,style]
             added_css.push(array_item);
         }
     }
@@ -228,18 +228,18 @@ function manipulate(request, update)
         let found_elements = [];
         added_js.forEach(function(element)
         {
-            if(element[0]===request.title)
+            if(element[0]===request.filename)
             {
-                found_elements.push(request.title);
+                found_elements.push(request.filename);
             }
         })
-        if(!found_elements.includes(request.title))
+        if(!found_elements.includes(request.filename))
         {
             let head = document.head;
             let script = document.createElement('script');
             script.textContent = request.code;
             head.appendChild(script);
-            added_js.push([request.title,script]);  
+            added_js.push([request.filename,script]);  
         }
         else
         {
@@ -248,7 +248,7 @@ function manipulate(request, update)
             let script = document.createElement('script');
             script.textContent = request.code;
             head.appendChild(script);
-            added_js.push([request.title,script]);  
+            added_js.push([request.filename,script]);  
         }
     }
 }
@@ -260,7 +260,7 @@ function main()
     // Gets the element that was clicked on.
     document.addEventListener("mousedown", function(event){
         //right click
-        if(event.button == 2) { 
+        if(event.button === 2) { 
             let current_elem = event.target;
             let path = "";
             
@@ -288,11 +288,14 @@ function main()
             if(current_elem.id != "")
             {
                 let id = current_elem.id;
-                if(id.includes(" "))
+                if(id != null)
                 {
-                    id = id.split(" ")[0];
+                    if(id.includes(" "))
+                    {
+                        id = id.split(" ")[0];
+                    }
+                    path = "#"+id+ " "+ path;
                 }
-                path = "#"+id+ " "+ path;
             }
             clickedEl = path;
             

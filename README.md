@@ -41,6 +41,17 @@ for free, of course :D
 - Test a website you're working on.
 - Whatevery you can imagine, be creative :D
 
+**It doesn't work, what now?**:
+- For Javascript:
+    - Make sure your code is run at the right moment. Maybe try adding a delay.
+    - Check the chrome console for error messages. 
+
+- For CSS:
+    - Make sure you are are manipulating the right element. by using "inspect element".
+    - Try using '!important'.
+- For HTML:
+    - Make sure you haven't accidentally set the 'position' dropdown to the wrong position.
+
 **What I learned:**
 - The process of making extensions.
 - Basics of JavaScript.
