@@ -667,13 +667,21 @@ class Navigation
             chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
             {
                 chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: element.filename}, function(response) {
-                    if(response.response===true)
+                    if(response != null)
                     {
-                        element.element.style.opacity = 1;
+                        if(response.response===true)
+                        {
+                            element.element.style.opacity = 1;
+                        }
+                        else
+                        {
+                            element.element.style.opacity = 0.5;
+                        }
                     }
                     else
                     {
-                        element.element.style.opacity = 0.5;
+                        window.close();
+                        chrome.browserAction.disable(tabs[0].id,function(){});
                     }
                 }.bind(this))
             }.bind(this))
@@ -744,10 +752,18 @@ class Navigation
                 chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
                 {
                     chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: this.editor.active_file}, function(response) {
-                        if(response.response===true)
+                        if(response != null)
                         {
-                            this.remove_try_button.style.display = "block";
-                            this.try_button.value = "Update Manip."
+                            if(response.response===true)
+                            {
+                                this.remove_try_button.style.display = "block";
+                                this.try_button.value = "Update Manip."
+                            }
+                        }
+                        else
+                        {
+                            window.close();
+                            chrome.browserAction.disable(tabs[0].id,function(){});
                         }
                     }.bind(this))
                 }.bind(this))

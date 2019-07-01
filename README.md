@@ -32,7 +32,7 @@ for free, of course :D
 - Inject Javascript on the go.
 - Add/Remove/Change the HTML and CSS on the go.
 - Right click on any element on a page to get the full CSS path.
-- Automatically save and sync scripts you make.
+- Automatically save and sync the scripts you make.
 
 **Fun use cases**:
 - Cheat simple games like the t-rex game.
@@ -42,6 +42,7 @@ for free, of course :D
 - Whatevery you can imagine, be creative :D
 
 **It doesn't work, what now?**:
+If the extension button in the top right corner is greyed-out, you can't use it on that page.
 - For Javascript:
     - Make sure your code is run at the right moment. Maybe try adding a delay.
     - Check the chrome console for error messages. 
@@ -55,7 +56,7 @@ for free, of course :D
 **What I learned:**
 - The process of making extensions.
 - Basics of JavaScript.
-- Chrome storage API.
+- Chrome storage and messaging API.
 
 
 The editor I used since the second release is Ace editor.
