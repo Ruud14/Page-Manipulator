@@ -26,6 +26,35 @@ If you don't know how to do this, here are the steps.
 This will soon be in the chrome extensions store.
 for free, of course :D
 
+
+**How to use?**
+- Simple, First open the extension.
+- Choose 'JavaScript', 'CSS' or 'HTML'.
+- Create a new file by pressing 'new'.
+- Write your own code or get some from the examples here: https://github.com/Ruud14/Page-Manipulator/tree/master/examples
+- Button functionalities:
+    - The 'Reload' Button:
+        - Will Reload the current page.
+    - The 'Active' checkbox:
+        - If on > The code will be run automatically on the pages specified in the 'Active websites' textarea.
+        - If off > The code will only run when you press the 'Manipulate' button.
+    - The 'Active Websites' textarea:
+        - You can specify the websites you want your code to run on here.
+    - The 'Matching Pages' dropdown:
+        - If 'Exact' > The code will only run when the url of the page is exactly the same as one of the urls in the 'Active Websites' textarea.
+        - If 'Recursive' > The code will also run on all sub-pages of the specified urls in the 'Active Websites'.
+    - The 'Position on page' dropdown (only with HTML):
+        - If 'Top' > The HTML will be added to the top of the page.
+        - If 'Bottom' > The HTML will be added to the bottom of the page.
+        - If 'Replace' > The html will replace the entire body HTML of the page.
+    - The 'Manipulate' or 'Update Manip.' button:
+        - Injects the code into the page or updates the injection.
+        - **This button also works when the 'Active' checkbox is unchecked.**
+    - The 'Remove Manip.' Button:
+        - Removes the manipulation from the page.
+    - The 'Delete' button:
+        - Deletes the current file from the storage.
+
 **Functionalities**
 - Have HTML, CSS and/or Javascript automatically added to all pages or the pages you specify.
 - Run custom CSS **Before** the page is fully loaded so you won't see the origial page first.

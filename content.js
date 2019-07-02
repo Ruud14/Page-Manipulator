@@ -31,6 +31,27 @@ function load()
             let active_websites = file_data["active_websites"].split('\n');
             let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
             let todo = 'change'+kind;
+            // Complete incomplete urls
+            for(let site of active_websites)
+            {
+                if(!(site.startsWith("https://")||site.startsWith("http://"))&&site.toLowerCase()!="all")
+                {
+                    let index = active_websites.indexOf("site");
+                    if(site.startsWith("www."))
+                    {
+                        site1 =  "https://"+site;
+                        site2 =  "http://"+site; 
+                    }
+                    else
+                    {
+                        site1 = "https://www."+site;
+                        site2 = "http://www."+site;
+                    }
+                    active_websites.splice(index,1);
+                    active_websites.push(site1);
+                    active_websites.push(site2);
+                }
+            }
             //Remove empty lines from active_websites
             while(active_websites.includes(""))
             {
@@ -243,7 +264,8 @@ function manipulate(request, update)
         }
         else
         {
-            remove_manipulation(request);
+            remove_request = {todo:"removeJS",value:request.filename}
+            remove_manipulation(remove_request);
             let head = document.head;
             let script = document.createElement('script');
             script.textContent = request.code;
