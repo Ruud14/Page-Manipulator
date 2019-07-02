@@ -54,6 +54,7 @@ for free, of course :D
         - Removes the manipulation from the page.
     - The 'Delete' button:
         - Deletes the current file from the storage.
+- You can right click any element on a page to get the css path of that element.
 
 **Functionalities**
 - Have HTML, CSS and/or Javascript automatically added to all pages or the pages you specify.
