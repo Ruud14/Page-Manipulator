@@ -14,8 +14,11 @@ Better than 'inspect element' because It will stay after a reload :D
 
 
 **How to install?**
-Currently, since it is still work in progress, you have to load it as an unpacked extension.
-If you don't know how to do this, here are the steps.
+
+Get it in the chrome extension store here:
+https://chrome.google.com/webstore/detail/page-manipulator/mdhellggnoabbnnchkeniomkpghbekko
+
+Or follow the steps below.
 - Download all these files and put them in to a folder.
 - Open your chrome browser and click on the 3 dots in the top right corner.
 - Go to: "More Tools" > "Extensions".
@@ -23,8 +26,7 @@ If you don't know how to do this, here are the steps.
 - Click "Load unpacked" in the top left corner and select the folder.
 - Enjoy :D
 
-This will soon be in the chrome extensions store.
-for free, of course :D
+
 
 
 **How to use?**
