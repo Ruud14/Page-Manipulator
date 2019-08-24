@@ -125,15 +125,13 @@ class YoutubeInator
         
     }
 }
-let urls = ["https://static.wixstatic.com/media/c17790_7fc736202c6f4453becc6e7a0f143ce0~mv2.jpg","https://upload.wikimedia.org/wikipedia/en/a/a9/Plat_13.png","https://cdn.macrumors.com/article-new/2019/01/ios13roundupheadertemp.jpg","https://upload.wikimedia.org/wikipedia/commons/c/c9/13_white%2C_blue_rounded_rectangle.svg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Canal_13_de_Chile_%28Isotipo_2018%29.svg/1200px-Canal_13_de_Chile_%28Isotipo_2018%29.svg.png","http://images.tritondigitalcms.com/6616/sites/689/2017/01/27001222/Unlucky-Number-13-v1.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/9/91/Junction_13.svg","https://weeknumber.net/gfx/200x200/13.png","https://piratenpartij.nl/wp-content/uploads/2019/02/art13graffiti-square.jpg","https://www.worldnumerology.com/images/13.png",
-        "https://media.istockphoto.com/photos/number-13-outlined-in-festive-sparkler-lights-picture-id157645244?k=6&m=157645244&s=612x612&w=0&h=oRxgx0rjhCIKp-Q5UrEUk9T1dCyLvP1hC7zKRJM9qPs=",
-        "http://numerologystars.com/wp-content/uploads/2011/12/number-13-2.jpg","https://www.drodd.com/images15/13-24.png","https://jacobsmedia.com/wp-content/uploads/2019/04/13.jpg","https://crossfitroundrocktx.com/wp-content/uploads/2018/06/chapter-13-bankruptcy-california.jpg"];
-
+let urls = ["https://orig00.deviantart.net/32bd/f/2018/245/4/0/untitled_drawing_by_azuraring-dcltymr.png","https://www.pngfind.com/pngs/m/183-1831028_mlg-mlg-mlg-8-bit-finn-the-human.png",
+            "https://i.kym-cdn.com/entries/icons/original/000/027/027/5gwo9dcm1rh11.png","https://i.ytimg.com/vi/0NfTVytat_E/maxresdefault.jpg",
+            "https://i.kym-cdn.com/entries/icons/original/000/030/115/cover4.jpg","https://i.kym-cdn.com/entries/icons/original/000/021/971/Salt-Bae-001.jpg","https://images-i.jpimedia.uk/imagefetch/c_fill,f_auto,h_1133,q_auto:eco,w_1700/https://inews.co.uk/wp-content/uploads/2016/09/pepehead.jpg",
+           "https://i1.wp.com/chartcons.com/wp-content/uploads/Funniest-Ginger-Jokes-3.jpg?fit=1024%2C768&ssl=1","https://www.24fun.me/wp-content/uploads/2019/05/Funny-videos-2017-funny-vines-try-not-to-laugh-challenge.jpg","https://image.shutterstock.com/image-photo/funny-man-watermelon-helmet-googles-260nw-157354478.jpg"]
 setTimeout(function()
 { 
-    let yeet = new YoutubeInator("13",urls);
+    let yeet = new YoutubeInator("yeet",urls);
     yeet.mlg();
 }, 3000);
 
