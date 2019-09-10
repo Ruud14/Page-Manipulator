@@ -71,7 +71,7 @@ Or follow the steps below.
 - Fool your friends by showing them something fake on a website.
 - Make your own dark-theme for any website.
 - Test a website you're working on.
-- Whatevery you can imagine, be creative :D
+- Whatever you can imagine, be creative :D
 
 **It doesn't work, what now?**:
 If the extension button in the top right corner is greyed-out, you can't use it on that page.
