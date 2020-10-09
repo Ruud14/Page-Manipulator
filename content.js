@@ -11,81 +11,92 @@ window.onload = function statup()
     update_badge();
 }
 
-
-function load()
+function load_data_from_storage(data)
 {
-    chrome.storage.sync.get(null, function(data) {
-        //populate the array.
-        let url = location.href;
-        console.log(url);
-        let filenames = Array.from(Object.keys(data));
-        let filedatas = Array.from(Object.values(data))
-        for(let i =0;i<filenames.length;i++)
+    //populate the array.
+    let url = location.href;
+    console.log(url);
+    let filenames = Array.from(Object.keys(data));
+    let filedatas = Array.from(Object.values(data))
+    for(let i =0;i<filenames.length;i++)
+    {
+        let file_data = filedatas[i];
+        let filename = file_data["filename"];
+        let filetext = file_data["text"];
+        let position = file_data["position"];
+        let active = file_data["active"];
+        let mode = file_data["mode"];
+        let active_websites = file_data["active_websites"].split('\n');
+        let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
+        let todo = 'change'+kind;
+        // Complete incomplete urls
+        for(let site of active_websites)
         {
-            let file_data = filedatas[i];
-            let filename = file_data["filename"];
-            let filetext = file_data["text"];
-            let position = file_data["position"];
-            let active = file_data["active"];
-            let mode = file_data["mode"];
-            let active_websites = file_data["active_websites"].split('\n');
-            let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
-            let todo = 'change'+kind;
-            // Complete incomplete urls
-            for(let site of active_websites)
+            if(!(site.startsWith("https://")||site.startsWith("http://"))&&site.toLowerCase()!="all")
             {
-                if(!(site.startsWith("https://")||site.startsWith("http://"))&&site.toLowerCase()!="all")
+                let index = active_websites.indexOf("site");
+                if(site.startsWith("www."))
                 {
-                    let index = active_websites.indexOf("site");
-                    if(site.startsWith("www."))
-                    {
-                        site1 =  "https://"+site;
-                        site2 =  "http://"+site; 
-                    }
-                    else
-                    {
-                        site1 = "https://www."+site;
-                        site2 = "http://www."+site;
-                    }
-                    active_websites.splice(index,1);
-                    active_websites.push(site1);
-                    active_websites.push(site2);
+                    site1 =  "https://"+site;
+                    site2 =  "http://"+site; 
                 }
-            }
-            //Remove empty lines from active_websites
-            while(active_websites.includes(""))
-            {
-                let index = active_websites.lastIndexOf("");
+                else
+                {
+                    site1 = "https://www."+site;
+                    site2 = "http://www."+site;
+                }
                 active_websites.splice(index,1);
+                active_websites.push(site1);
+                active_websites.push(site2);
             }
-            if(active_websites.includes("all"))
+        }
+        //Remove empty lines from active_websites
+        while(active_websites.includes(""))
+        {
+            let index = active_websites.lastIndexOf("");
+            active_websites.splice(index,1);
+        }
+        if(active_websites.includes("all"))
+        {
+            let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
+            manipulate(req,false);
+        }
+        else if(mode === "recursive")
+        {
+            for(let x=0;x<url.length;x++)
+            {
+                let substring = url.substring(0,x);
+                if(active_websites.includes(substring))
+                {
+                    let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
+                    manipulate(req,false);
+                    break;
+                }
+            } 
+        }
+        else if(mode === "exact")
+        {
+            if(active_websites.includes(url))
             {
                 let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
                 manipulate(req,false);
             }
-            else if(mode === "recursive")
-            {
-                for(let x=0;x<url.length;x++)
-                {
-                    let substring = url.substring(0,x);
-                    if(active_websites.includes(substring))
-                    {
-                        let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
-                        manipulate(req,false);
-                        break;
-                    }
-                } 
-            }
-            else if(mode === "exact")
-            {
-                if(active_websites.includes(url))
-                {
-                    let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
-                    manipulate(req,false);
-                }
-            }
-        }   
+        }
+    }   
+}
+
+function load()
+{
+    // Load the synced data.
+    chrome.storage.sync.get(null, function(data) {
+        load_data_from_storage(data);
     });
+
+    // Load the local data.
+    chrome.storage.local.get(null, function(data) {
+        load_data_from_storage(data);
+    });
+
 }
 // checks if a file is active or not.
 function get_status(filename)

@@ -1,7 +1,8 @@
 window.onload = function statup()
 {
     // Enable to clear the storage.
-    //chrome.storage.sync.clear();
+    // chrome.storage.sync.clear();
+    // chrome.storage.local.clear();
     main()
     
 }
@@ -28,6 +29,14 @@ function filename_to_kind(filename)
 {
     return (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
 }
+
+// Get string lenght of a javascript object.
+function get_file_size(file_object)
+{
+    let stringification = JSON.stringify(file_object);
+    return stringification.length;
+}
+
 // controlls the edit window
 class Editor
 {
@@ -38,6 +47,7 @@ class Editor
         this.active_file = "none";
         this.previous_file = "none";
         this.navigator = navigator;
+        this.max_synced_filesize_chars = 8000;
         
         this.editor = ace.edit("editor");
         this.editor.getSession().setMode("ace/mode/javascript");
@@ -247,6 +257,7 @@ class Editor
         let filename = this.active_file;
         this.close_file(filename);
         chrome.storage.sync.remove(filename,function(){});
+        chrome.storage.local.remove(filename,function(){});
         show_message("Deleted "+filename);
     }
     save_file_by_name(filename)
@@ -275,9 +286,22 @@ class Editor
 
         all_new_data[filename] = current_file_data;
 
-        chrome.storage.sync.set(all_new_data, function() {
-            show_message("Saved!");
-        });
+        // Update the synced storage if the file size is small enough. 
+        // Update the local storage otherwise.
+        if (get_file_size(all_new_data) >=  this.max_synced_filesize_chars)
+        {
+            chrome.storage.sync.remove(filename,function(){});
+            chrome.storage.local.set(all_new_data, function() {
+                show_message("Saved!");
+            });
+        }
+        else
+        {
+            chrome.storage.local.remove(filename,function(){});
+            chrome.storage.sync.set(all_new_data, function() {
+                show_message("Saved!");
+            });
+        }
     }
     // Saves the current file and it's properties to the storage.
     save_current_file()
@@ -307,9 +331,22 @@ class Editor
 
         all_new_data[current_file_name] = current_file_data;
 
-        chrome.storage.sync.set(all_new_data, function() {
-            show_message("Saved!");
-        });
+        // Update the synced storage if the file size is small enough. 
+        // Update the local storage otherwise.
+        if (get_file_size(all_new_data) >=  this.max_synced_filesize_chars)
+        {
+            chrome.storage.sync.remove(current_file_name,function(){});
+            chrome.storage.local.set(all_new_data, function() {
+                show_message("Saved!");
+            });
+        }
+        else
+        {
+            chrome.storage.local.remove(current_file_name,function(){});
+            chrome.storage.sync.set(all_new_data, function() {
+                show_message("Saved!");
+            });
+        }
 
         // Update '.last' when you switch files.
         if(this.previous_file != this.active_file)
@@ -544,7 +581,7 @@ class Navigation
         {
             let filename = this.filename_textfield.value;
             // Check if the file already exist by trying to get the current index.
-            if(this.get_nav_item_index_by_filename(filename) == null)
+            if((this.get_nav_item_index_by_filename(filename) == null) && (this.get_nav_item_index_by_filename(filename+"."+this.current_menu.toLowerCase()) == null))
             {
                 if(this.current_menu === "JS" || this.current_menu === "CSS" || this.current_menu === "HTML")
                 {
@@ -597,8 +634,8 @@ class Navigation
     // gets the saved files from the storage.
     get_saved_nav_items()
     {
+        // First get the synced storage.
         chrome.storage.sync.get(null, function(data) {
-
             //clear the array.
             this.nav_items = [];
             //populate the array.
@@ -628,9 +665,40 @@ class Navigation
 
                 let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,open,last);
                 this.nav_items.push(nav_item);
-  
             }
-            
+
+            // Also get the local storage.
+            chrome.storage.local.get(null, function(data) {
+
+                //populate the array.
+                let filenames = Array.from(Object.keys(data));
+                let filedatas = Array.from(Object.values(data))
+                for(let i =0;i<filenames.length;i++)
+                {
+                    let file_data = filedatas[i];
+                    let active_websites = file_data["active_websites"];
+                    let filename = file_data["filename"];
+                    let filetext = file_data["text"];
+                    let position = file_data["position"];
+                    let mode = file_data["mode"];
+                    let active = file_data["active"];
+                    let open = file_data["open"];
+                    let last = file_data["last"];
+                    let input = this.add_nav_button(filename);
+    
+                    // Add functionallity to the button.
+                    input.onclick = function()
+                    {
+                        this.editor.open_file(filename,filetext);
+                        this.editor.save_current_file();
+                        this.disable_all_menus();
+                        this.enable_menu_of_kind("EDITOR");
+                    }.bind(this);
+    
+                    let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,open,last);
+                    this.nav_items.push(nav_item);
+                }
+            }.bind(this));
         }.bind(this));
        
     }
