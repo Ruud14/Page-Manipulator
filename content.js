@@ -34,20 +34,24 @@ function load_data_from_storage(data)
         {
             if(!(site.startsWith("https://")||site.startsWith("http://"))&&site.toLowerCase()!="all")
             {
-                let index = active_websites.indexOf("site");
                 if(site.startsWith("www."))
                 {
                     site1 =  "https://"+site;
                     site2 =  "http://"+site; 
+                    site3 = "https://"+site.slice(4);
+                    site4 = "http://"+site.slice(4);
                 }
                 else
                 {
                     site1 = "https://www."+site;
                     site2 = "http://www."+site;
+                    site3 = "https://"+site;
+                    site4 = "http://"+site;
                 }
-                active_websites.splice(index,1);
                 active_websites.push(site1);
                 active_websites.push(site2);
+                active_websites.push(site3);
+                active_websites.push(site4);
             }
         }
         //Remove empty lines from active_websites
@@ -63,16 +67,15 @@ function load_data_from_storage(data)
         }
         else if(mode === "recursive")
         {
-            for(let x=0;x<url.length;x++)
+            for(let site of active_websites)
             {
-                let substring = url.substring(0,x);
-                if(active_websites.includes(substring))
+                if(url.startsWith(site))
                 {
                     let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
                     manipulate(req,false);
                     break;
                 }
-            } 
+            }
         }
         else if(mode === "exact")
         {

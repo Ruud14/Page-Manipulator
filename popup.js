@@ -433,6 +433,13 @@ class Navigation
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
         this.current_zoom_level = 0;
+        if(localStorage["current_zoom_level"])
+        {
+            console.log("yes");
+            this.set_zoom_factor(parseInt(localStorage["current_zoom_level"]));
+        }
+
+        
         // These arrays only contain the items that are always there.
         this.main_nav_buttons = [this.js_button,this.css_button,this.html_button];
         this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button];
@@ -645,6 +652,7 @@ class Navigation
         if(factor >= 0)
         {
             this.current_zoom_level = factor;
+            localStorage["current_zoom_level"] = factor;
             console.log(this.current_zoom_level.toString() + "%");
             let body_width = Math.round(600 + this.current_zoom_level*(2/3));
             let body_height = Math.round(300 + this.current_zoom_level);
