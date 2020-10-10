@@ -393,7 +393,7 @@ class Navigation
 {
     constructor()
     {
-         // Getting all the html elements.
+        // Getting all the html elements.
         this.navbar = document.getElementById("navbar");
         this.back_button = document.getElementById("back-button");
         this.back_div = document.getElementById("back-div");
@@ -415,13 +415,14 @@ class Navigation
         this.matching_pages_label = document.getElementById("matching-pages-label");
         this.position_label = document.getElementById("position-label");
         this.filename_input_label = document.getElementById("filename-input-label");
-        //this.await_label = document.getElementById("await-label");
-        //this.await_checkbox = document.getElementById("await-checkbox");
         this.active_checkbox = document.getElementById("active-checkbox");
+
+        this.zoom_out_button = document.getElementById("zoom-out-button");
+        this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
+        this.zoom_in_button = document.getElementById("zoom-in-button");
 
         // Autosave when changing the position, mode or enabled sites.
         this.active_checkbox.onchange = function(){this.editor.save_current_file()}.bind(this);
-        //this.await_checkbox.onchange = function(){this.editor.save_current_file()}.bind(this);
         this.position_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
         this.position_selection.onchange = function(){this.editor.save_current_file()}.bind(this);
         this.mode_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
@@ -431,6 +432,7 @@ class Navigation
 
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
+        this.current_zoom_level = 0;
         // These arrays only contain the items that are always there.
         this.main_nav_buttons = [this.js_button,this.css_button,this.html_button];
         this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button];
@@ -620,7 +622,45 @@ class Navigation
             }
             
         }.bind(this);
+
+        // Bind the zoom buttons.
+        this.zoom_out_button.onclick = function()
+        {
+            if(this.current_zoom_level > 0)
+            {
+                this.set_zoom_factor(this.current_zoom_level-50);
+            }
+        }.bind(this);
+        this.zoom_in_button.onclick = function()
+        {
+            if(this.current_zoom_level < 250)
+            {
+                this.set_zoom_factor(this.current_zoom_level+50);
+            }
+        }.bind(this);
     }
+
+    set_zoom_factor(factor)
+    {
+        if(factor >= 0)
+        {
+            this.current_zoom_level = factor;
+            console.log(this.current_zoom_level.toString() + "%");
+            let body_width = Math.round(600 + this.current_zoom_level*(2/3));
+            let body_height = Math.round(300 + this.current_zoom_level);
+            let editor_width = Math.round(420 + this.current_zoom_level*(2/3));
+            let editor_height = Math.round(230 + this.current_zoom_level);
+            let nav_bar_height = Math.round(250 + this.current_zoom_level);
+            document.body.style["min-width"] = body_width.toString()+"px";
+            document.body.style["min-height"] = body_height.toString()+"px";
+            this.editor.editor_element.style["min-width"] = editor_width.toString()+"px";
+            this.editor.editor_element.style["min-height"] = editor_height.toString()+"px";
+            this.editor.editor.resize();
+            this.navbar.style["min-height"] = nav_bar_height.toString()+"px";
+            this.zoom_percentage_label.innerHTML = (this.current_zoom_level+100).toString() + " %";
+        }
+    }
+
     // Creates a new button for the specified filename.
     add_nav_button(filename)
     {

@@ -9,8 +9,8 @@
 }
 body
 {
-    min-width: 600px;
-    min-height: 303px;
+    min-width: 600px; /*  max 800  */
+    min-height: 300px; /*  max 600  */
     background-color: var(--back-color);
 }
 header{
@@ -81,6 +81,7 @@ header{
     width: 25%;
     position: fixed;
     z-index:2;
+    max-width: 155px;
 }
 #write-area
 {
@@ -138,7 +139,7 @@ header{
 {
     position: absolute;
     right: 5px;
-    bottom: 5px;
+    top: 22px;
     min-width: 420px;
     min-height: 230px;
 }
@@ -178,12 +179,13 @@ header{
 #info-text
 {
     position: absolute;
-    right: 5px;
+    left: 160px;
     top: 20px;
     max-width: 415px;
     max-height: 226px;
     z-index: -5;
 }
+
 
 footer a
 {
@@ -192,4 +194,37 @@ footer a
     right: 5px;
     color:var(--button-color);
     z-index:-2;
+}
+
+footer .zoombutton
+{
+    position: fixed;
+    bottom: 2px;
+    background-color: var(--button-color);
+    color:var(--back-color);
+    z-index: 5;
+    font-weight: bold;
+    border: none;
+}
+
+#zoom-in-button
+{
+    left: 75px;
+}
+
+#zoom-out-button
+{
+    left: 12px;
+}
+
+#zoom-percentage-label
+{
+    position: fixed;
+    bottom: 2px;
+    left: 35px;
+    margin: 0;
+    margin-bottom: 3px;
+    padding: 0;
+    color: var(--button-color);
+    z-index: -2;
 }
