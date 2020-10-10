@@ -62,27 +62,30 @@ class Editor
     // and opens the file if it aleady exists.
     open_file(filename, text)
     {
-        if(this.files.length < this.max_open_files)
+        let all_open_filenames = [];
+        for(let element of this.files)
         {
-            let all_open_filenames = [];
-            for(let element of this.files)
-            {
-                all_open_filenames.push(element[0]);
-            }
-            // check if the file isn't already open.
-            if(all_open_filenames.includes(filename))
-            {
-                this.activate_file_by_name(filename);
-            }
-            else
+            all_open_filenames.push(element[0]);
+        }
+        // check if the file isn't already open.
+        if(all_open_filenames.includes(filename))
+        {
+            this.activate_file_by_name(filename);
+        }
+        else
+        {
+            // Check if the maximum amount of open files isn't already reached.
+            if(this.files.length < this.max_open_files)
             {
                 this.create_window(filename,text);
                 this.create_file_button(filename);
                 this.activate_file_by_name(filename);
             }
+            else
+            {
+                alert("Close some files first.");
+            }
         }
-        else
-            alert("Close some files first.")
     }
     // Opens the editor window of the file with the specified filename.
     activate_file_by_name(filename)
@@ -763,7 +766,7 @@ class Navigation
         let last_open_file = null;
         for(let element of this.nav_items)
         {
-            if(element.open)
+            if(element.open && (this.editor.files.length < this.editor.max_open_files))
             {
                 this.editor.open_file(element.filename,element.text);
                 this.disable_all_menus();
