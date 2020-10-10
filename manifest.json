@@ -34,6 +34,7 @@
         "tabs",
         "storage",
         "activeTab",
-        "contextMenus"
+        "contextMenus",
+        "unlimitedStorage"
     ]
 }

@@ -4,7 +4,7 @@ Project status: not finished
 
 WARNING: This project was created in a short period of time and definitely isn't perfect (yet :D)!
 This works on most sites, but there are some exceptions!
-If you'd like to see any specific improvements or found any bugs, let me know in the "issues".
+If you'd like to see any specific improvements or found any bugs, let me know [here](https://github.com/Ruud14/Page-Manipulator/issues).
 
 **Chrome Extension to inject HTML, CSS or JavaScript any web-page.**
 Inject HTML, CSS or JavaScript to your favorite web-pages.
@@ -15,8 +15,7 @@ Better than 'inspect element' because It will stay after a reload :D
 
 **How to install?**
 
-Get it in the chrome extension store here:
-https://chrome.google.com/webstore/detail/page-manipulator/mdhellggnoabbnnchkeniomkpghbekko
+Get it in the chrome extension store [here](https://chrome.google.com/webstore/detail/page-manipulator/mdhellggnoabbnnchkeniomkpghbekko).
 
 Or follow the steps below.
 - Download all these files and put them in to a folder.
@@ -26,14 +25,11 @@ Or follow the steps below.
 - Click "Load unpacked" in the top left corner and select the folder.
 - Enjoy :D
 
-
-
-
 **How to use?**
 - Simple, First open the extension.
 - Choose 'JavaScript', 'CSS' or 'HTML'.
 - Create a new file by pressing 'new'.
-- Write your own code or get some from the examples here: https://github.com/Ruud14/Page-Manipulator/tree/master/examples
+- Write your own code or get some from the examples [here](https://github.com/Ruud14/Page-Manipulator/tree/master/examples).
 - Button functionalities:
     - The 'Reload' Button:
         - Will Reload the current page.
@@ -64,7 +60,9 @@ Or follow the steps below.
 - Inject Javascript on the go.
 - Add/Remove/Change the HTML and CSS on the go.
 - Right click on any element on a page to get the full CSS path.
-- Automatically save and sync the scripts you make.
+- Automatically saves the changes you make.
+    - Files that contain less than 8000 characters are synced across your google account.
+    - Files that contain 8000 or more characters are stored locally.
 
 **Fun use cases**:
 - Cheat simple games like the t-rex game.
