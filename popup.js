@@ -99,10 +99,11 @@ class Editor
                 this.navigator.nav_items[index].open = true;
                 this.editor.setSession(element[1]);
                 this.editor_element.style.display = "block";
+                // Focus on the textarea after opening a file.
+                document.getElementsByClassName("ace_text-input")[0].focus();
                 break;
             }
         }
-        //this.save_file_by_name(filename);
         this.make_button_active(filename);
     }
     // Make the active window button look darker to make it the obvious open file.
