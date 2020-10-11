@@ -30,21 +30,26 @@ Or follow the steps below.
 - Choose 'JavaScript', 'CSS' or 'HTML'.
 - Create a new file by pressing 'new'.
 - Write your own code or get some from the examples [here](https://github.com/Ruud14/Page-Manipulator/tree/master/examples).
+- Press the manipulate button to test your code.
+- To make sure your code is run everytime you visit a specific page do the following:
+    - Put the urls of the websites in the 'active websites' input.
+    - Check the 'active' checkbox.
+
 - Button functionalities:
     - The 'Reload' Button:
         - Will Reload the current page.
     - The 'Active' checkbox:
-        - If on > The code will be run automatically on the pages specified in the 'Active websites' textarea.
-        - If off > The code will only run when you press the 'Manipulate' button.
+        - on > The code will be run automatically on the pages specified in the 'Active websites' textarea.
+        - off > The code will only run when you press the 'Manipulate' button.
     - The 'Active Websites' textarea:
         - You can specify the websites you want your code to run on here.
     - The 'Matching Pages' dropdown:
-        - If 'Exact' > The code will only run when the url of the page is exactly the same as one of the urls in the 'Active Websites' textarea.
-        - If 'Recursive' > The code will also run on all sub-pages of the specified urls in the 'Active Websites'.
+        - 'Exact' > The code will only run when the url of the page is exactly the same as one of the urls in the 'Active Websites' textarea. (Including slashes at the end!)
+        - 'Recursive' > The code will also run on all sub-pages of the specified urls in the 'Active Websites'.
     - The 'Position on page' dropdown (only with HTML):
-        - If 'Top' > The HTML will be added to the top of the page.
-        - If 'Bottom' > The HTML will be added to the bottom of the page.
-        - If 'Replace' > The html will replace the entire body HTML of the page.
+        - 'Top' > The HTML will be added to the top of the page.
+        - 'Bottom' > The HTML will be added to the bottom of the page.
+        - 'Replace' > The html will replace the entire body HTML of the page.
     - The 'Manipulate' or 'Update Manip.' button:
         - Injects the code into the page or updates the injection.
         - **This button also works when the 'Active' checkbox is unchecked.**
@@ -55,7 +60,7 @@ Or follow the steps below.
 - You can right click any element on a page to get the css path of that element.
 
 **Functionalities**
-- Have HTML, CSS and/or Javascript automatically added to all pages or the pages you specify.
+- Automatically inject custom HTML, CSS and/or Javascript into the pages you specify.
 - Run custom CSS **Before** the page is fully loaded so you won't see the origial page first.
 - Inject Javascript on the go.
 - Add/Remove/Change the HTML and CSS on the go.
@@ -72,7 +77,8 @@ Or follow the steps below.
 - Whatever you can imagine, be creative :D
 
 **It doesn't work, what now?**:
-If the extension button in the top right corner is greyed-out, you can't use it on that page.
+- If the extension button in the top right corner is greyed-out, you can't use it on that page.
+- Make sure the 'active' checkbox is checked. And the 'active websites' input contains the correct urls.
 - For Javascript:
     - Make sure your code is run at the right moment. Maybe try adding a delay.
     - Check the chrome console for error messages. 
@@ -80,6 +86,7 @@ If the extension button in the top right corner is greyed-out, you can't use it 
 - For CSS:
     - Make sure you are are manipulating the right element. by using "inspect element".
     - Try using '!important'.
+
 - For HTML:
     - Make sure you haven't accidentally set the 'position' dropdown to the wrong position.
 
