@@ -312,6 +312,7 @@ class Editor
     {
         let current_file_name = this.active_file;
         let current_text = this.get_current_text();
+        let checked = this.navigator.active_checkbox.checked;
         let active_websites = this.navigator.enabled_sites_text_area.value;
         let position = this.navigator.position_selection.options[this.navigator.position_selection.selectedIndex].value;
         let mode = this.navigator.mode_selection.options[this.navigator.mode_selection.selectedIndex].value;
@@ -323,9 +324,7 @@ class Editor
         current_file_data.active_websites = active_websites;
         current_file_data.position = position;
         current_file_data.mode = mode;
-        current_file_data.active = this.navigator.active_checkbox.checked;
-
-        //current_file_data.wait = this.navigator.await_checkbox.checked;
+        current_file_data.active = checked;
 
         // Checks if the file was open or not.
         let index = this.navigator.get_nav_item_index_by_filename(current_file_name);
@@ -421,21 +420,11 @@ class Navigation
         this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
         this.zoom_in_button = document.getElementById("zoom-in-button");
 
-        // Autosave when changing the position, mode or enabled sites.
-        this.active_checkbox.onchange = function(){this.editor.save_current_file()}.bind(this);
-        this.position_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
-        this.position_selection.onchange = function(){this.editor.save_current_file()}.bind(this);
-        this.mode_selection.onkeyup = function(){this.editor.save_current_file()}.bind(this);
-        this.mode_selection.onchange = function(){this.editor.save_current_file()}.bind(this);
-        this.enabled_sites_text_area.onkeyup = function(){this.editor.save_current_file()}.bind(this);
-        this.enabled_sites_text_area.onchange = function(){this.editor.save_current_file()}.bind(this);
-
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
         this.current_zoom_level = 0;
         if(localStorage["current_zoom_level"])
         {
-            console.log("yes");
             this.set_zoom_factor(parseInt(localStorage["current_zoom_level"]));
         }
 
@@ -449,14 +438,78 @@ class Navigation
         this.disable_all_menus();
         this.enable_menu_of_kind("MAIN");
         setTimeout(function() {this.load_open_files();}.bind(this), 100);
-       
-        
-       
     }
     // binds the correct functions to the buttons.
     // This method should only be run once -> by the constructor.
     bind_buttons()
     {
+        // Autosave when changing the "active" checkbox.
+        this.active_checkbox.onchange = function(){ 
+            for(let element of this.nav_items)
+            {
+                if(element.filename === this.editor.active_file)
+                {
+                    let index = this.nav_items.indexOf(element);
+                    this.nav_items[index].active = this.active_checkbox.checked;
+                    this.editor.save_current_file();
+                }
+            }
+        }.bind(this);
+
+        // function for autosaving when changing the position.
+        let position_change_function = function()
+        {
+            for(let element of this.nav_items)
+            {
+                if(element.filename === this.editor.active_file)
+                {
+                    let index = this.nav_items.indexOf(element);
+                    this.nav_items[index].position = this.position_selection.options[this.position_selection.selectedIndex].value;
+                    this.editor.save_current_file();
+                }
+            }
+        }.bind(this);
+
+        // Autosave when changing the position.
+        this.position_selection.onkeyup = position_change_function;
+        this.position_selection.onchange = position_change_function;
+
+        // function for autosaving when changing the mode.
+        let mode_change_function = function()
+        {
+            for(let element of this.nav_items)
+            {
+                if(element.filename === this.editor.active_file)
+                {
+                    let index = this.nav_items.indexOf(element);
+                    this.nav_items[index].mode = this.mode_selection.options[this.mode_selection.selectedIndex].value;
+                    this.editor.save_current_file();
+                }
+            }
+        }.bind(this);
+
+        // Autosave when changing the mode.
+        this.mode_selection.onkeyup = mode_change_function;
+        this.mode_selection.onchange = mode_change_function;
+
+        // function for autosaving when changing the 'active sites' textarea.
+        let active_sites_textarea_change_function = function()
+        {
+            for(let element of this.nav_items)
+            {
+                if(element.filename === this.editor.active_file)
+                {
+                    let index = this.nav_items.indexOf(element);
+                    this.nav_items[index].active_websites = this.enabled_sites_text_area.value;
+                    this.editor.save_current_file();
+                }
+            }
+        }.bind(this);
+
+        // Autosave when changing the 'active sites' textarea.
+        this.enabled_sites_text_area.onkeyup = active_sites_textarea_change_function;
+        this.enabled_sites_text_area.onchange = active_sites_textarea_change_function;
+
         // Change the page to the javascript page.
         this.js_button.onclick = function()
         {   
@@ -653,7 +706,6 @@ class Navigation
         {
             this.current_zoom_level = factor;
             localStorage["current_zoom_level"] = factor;
-            console.log(this.current_zoom_level.toString() + "%");
             let body_width = Math.round(600 + this.current_zoom_level*(2/3));
             let body_height = Math.round(300 + this.current_zoom_level);
             let editor_width = Math.round(420 + this.current_zoom_level*(2/3));
@@ -894,13 +946,6 @@ class Navigation
                     this.position_selection.style.display = "block";
                     this.position_label.style.display = "block";
                 }
-                // else if(this.editor.active_file.endsWith(".js"))
-                // {
-                //     this.await_label.style.display = "inline";
-                //     this.await_checkbox.style.display = "inline";
-                // }
-                
-                // this.await_checkbox.checked = this.nav_items[index].wait;
 
                 //add the active websites to the enabled_sites_text_area.
                 let index = this.get_nav_item_index_by_filename(this.editor.active_file);
@@ -977,8 +1022,6 @@ class Navigation
                 this.active_label.style.display = "none";
                 this.position_selection.style.display = "none";
                 this.position_label.style.display = "none";
-                // this.await_label.style.display = "none";
-                // this.await_checkbox.style.display = "none";
                 this.remove_try_button.style.display = "none";
                 this.try_button.value="Manipulate";
                 break;
