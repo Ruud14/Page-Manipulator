@@ -1,0 +1,40 @@
+:root {
+  --FrontColor: #6e6e6e;
+  --MiddleColor:#4a4a4a;
+  --BackColor: #363636;
+}
+
+html .displaying-homepage .container .frame 
+{
+    background-color: var(--BackColor);
+}
+
+.source-wrap, #input-wrap, #spelling-correction, .result.tlid-copy-target, .tlid-result.result-dict-wrapper, .tlid-language-bar.ls-wrap, #source, .gb_Ud.gb_ee.gb_4d.gb_3d, .st-stp1-epu-text
+{
+    background-color: var(--MiddleColor) !important;
+    color: black;
+}
+
+.swap.jfk-button, .swap-wrap, .tlid-source-transliteration-container.source-transliteration-container.transliteration-container, .tlid-results-container.results-container.empty, .gt-is-itm, .ft-icon-oval, .contribute-target.goog-textarea, .st-stp1, .gt-edit  
+{
+    background-color: var(--MiddleColor) !important;
+}
+.sugg-fade
+{
+    width: 0 !important;
+}
+.gb_ta svg, .gb_Ec svg, .gb_1c .gb_ge, .gb_Qc .gb_ge
+{
+    color: black
+}
+.language-list-search-box, #sl_list-search-box
+{
+    background-color: var(--FrontColor);
+}
+
+.gt-cd.gt-cd-mmd, .gt-cd.gt-cd-mbd.gt-cd-baf, .gt-cd.gt-cd-mrw, .gt-cd.gt-cd-mss, .gt-cd.gt-cd-mex, .gt-cd.gt-cd-mmd
+{
+    background-color: var(--MiddleColor) !important;
+    border: .0px !important; 
+    border-radius: 0 !important;
+}
