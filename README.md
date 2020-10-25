@@ -13,7 +13,7 @@ Have the changes you make be saved and applied everytime you visit the specified
 Better than 'inspect element' because It will stay after a reload :D
 
 
-[![Page Minipulator Chrome Extension](https://img.youtube.com/vi/_-FCWwC9XQA/0.jpg)](https://www.youtube.com/watch?v=_-FCWwC9XQA "Page Minipulator - Chrome Extension")
+[![Page Minipulator Chrome Extension](https://ibb.co/n774RjV)](https://www.youtube.com/watch?v=_-FCWwC9XQA "Page Minipulator - Chrome Extension")
 
 **How to install?**
 
