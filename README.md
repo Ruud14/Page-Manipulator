@@ -1,6 +1,5 @@
 # Page Manipulator.
 
-Project status: not finished
 
 WARNING: This extension works on most sites, but there are some exceptions!
 If you'd like to see any specific improvements or found any bugs, let me know [here](https://github.com/Ruud14/Page-Manipulator/issues).
