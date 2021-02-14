@@ -3,6 +3,7 @@ let page_loaded = false;
 // Arrays that consists of ['filename',element] pairs.
 let added_css = [];
 let added_js = [];
+// Array that consists of ['filename', element, position] pairs.
 let added_html = [];
 window.onload = function statup()
 {
@@ -180,7 +181,7 @@ function remove_manipulation(request)
         {
             if(element[0]===request.value)
             {
-                // Since HTML injections are injected using insertAdjacentHTML, we can't just do element[1].remove().
+                // Since HTML injections are done using insertAdjacentHTML, we can't just do element[1].remove().
                 // Instead we must get the tag name of the injected element and consequently remove all elements with that tag name.
                 let index = added_html.indexOf(element);
                 let tagName = element[1].tagName;
@@ -223,12 +224,33 @@ function manipulate(request, update)
         // Check if the requested HTML element is alread injected into the page.
         // If so, change the innerHTML to be the new code.
         let found_elements = [];
-        added_html.forEach(function(element)
+        added_html.forEach(function(element, i)
         {
             if(element[0]===request.filename)
             {
                 found_elements.push(request.filename);
-                element[1].innerHTML = request.code;
+                // Remove the old element and add a new one, if the position of the injected html changed.
+                if(request.position !== element[2])
+                {
+                    // Remove the old element.
+                    request.todo = "removeHTML";
+                    request.value = request.filename;
+                    remove_manipulation(request);
+                    // Add the new element.
+                    request.todo = "changeHTML";
+                    manipulate(request, true);
+                }
+                else
+                {
+                    // Since HTML injections are done using insertAdjacentHTML, we can't just change element[1].innerHTML.
+                    // Instead we must get the tag name of the injected element and consequently change all elements with that tag name.
+                    let tagName = element[1].tagName;
+                    var real_elements = document.getElementsByTagName(tagName);
+                    for(let real_el of real_elements)
+                    {
+                        real_el.innerHTML = request.code;
+                    }
+                }
             }
         })
         if(found_elements.length === 0)
@@ -236,7 +258,7 @@ function manipulate(request, update)
             // Inject the new HTML element into the page if the HTML element wasn't alread present on the page.
             let page_manipulator = document.createElement('page-manipulator-'+request.filename.split('.')[0]);
             page_manipulator.innerHTML = request.code;
-            added_html.push([request.filename, page_manipulator])
+            added_html.push([request.filename, page_manipulator, request.position])
             let body = document.body;
             
             switch(request.position)
