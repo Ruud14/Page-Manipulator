@@ -1,14 +1,14 @@
 load();
 let page_loaded = false;
-// Array that consists of ['filename'.css,node] pairs.
+// Arrays that consists of ['filename',element] pairs.
 let added_css = [];
 let added_js = [];
+let added_html = [];
 window.onload = function statup()
 {
     page_loaded = true;
     main();
     load();
-    update_badge();
 }
 
 function load_data_from_storage(data)
@@ -117,10 +117,12 @@ function get_status(filename)
     }
     else if(filename.endsWith(".html"))
     {
-        let html_elements = document.getElementsByTagName('page-manipulator-'+filename.split('.')[0]);
-        if(html_elements.length != 0)
+        for(let element of added_html)
         {
-            return true;
+            if(element[0]===filename)
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -137,22 +139,17 @@ function get_status(filename)
     }
 }
 
+// Checks if there are any active manipulations.
+// If not it will set the badge to "Off".
 function update_badge()
 {
-    let found_elements = false;
-    for(let element of added_css)
-    {
-        if(element.active)
-        {
-            found_elements = true;
-        }   
-    }
-    if(!found_elements)
+    if(added_html.length + added_css.length + added_js.length === 0)
     {
         chrome.runtime.sendMessage({todo:"SetBadge", value:"Off"});
     }
 }
 
+// Remove a manipulation for the page.
 function remove_manipulation(request)
 {
     if(request.todo==="removeCSS")
@@ -170,10 +167,22 @@ function remove_manipulation(request)
     }
     else if(request.todo === "removeHTML")
     {
-        let html_elements = document.getElementsByTagName('page-manipulator-'+request.value.split('.')[0]);
-        for(let element of html_elements)
+        for(let element of added_html)
         {
-            element.remove();
+            if(element[0]===request.value)
+            {
+                // Since HTML injections are injected using insertAdjacentHTML, we can't just do element[1].remove().
+                // Instead we must get the tag name of the injected element and consequently remove all elements with that tag name.
+                let index = added_html.indexOf(element);
+                let tagName = element[1].tagName;
+                var real_elements = document.getElementsByTagName(tagName);
+                for(let real_el of real_elements)
+                {
+                    real_el.remove();
+                }
+                added_html.splice(index,1);
+                break;
+            }
         }
     }
     else if(request.todo === "removeJS")
@@ -189,27 +198,39 @@ function remove_manipulation(request)
             }
         }
     }
-    update_badge();
 }
 
 
 // Manipulates the page.
 function manipulate(request, update)
 {
+    // Return if the requested manipulation is not set to be active.
     if(request.active === false && !update)
     {
         return;
     }
+    // Set the badge to "On".
     chrome.runtime.sendMessage({todo:"SetBadge", value:"On"});
     if(request.todo==="changeHTML" && (page_loaded||update))
     {
-        let html_elements = document.getElementsByTagName('page-manipulator-'+request.filename.split('.')[0]);
-        if(html_elements.length === 0)
+        // Check if the requested HTML element is alread injected into the page.
+        // If so, change the innerHTML to be the new code.
+        let found_elements = [];
+        added_html.forEach(function(element)
         {
+            if(element[0]===request.filename)
+            {
+                found_elements.push(request.filename);
+                element[1].innerHTML = request.code;
+            }
+        })
+        if(found_elements.length === 0)
+        {
+            // Inject the new HTML element into the page if the HTML element wasn't alread present on the page.
             let page_manipulator = document.createElement('page-manipulator-'+request.filename.split('.')[0]);
             page_manipulator.innerHTML = request.code;
+            added_html.push([request.filename, page_manipulator])
             let body = document.body;
-            
             
             switch(request.position)
             {
@@ -224,19 +245,13 @@ function manipulate(request, update)
                     break;
             }
         }
-        else
-        {
-            for(let element of html_elements)
-            {
-                element.innerHTML = request.code;
-            }
-        }
         
     }
-    // Adds a new <style> for every saved .css script for the active website.
     else if(request.todo ==="changeCSS" && (!page_loaded || update))
     {
         
+        // Check if requested CSS has alread been injected.
+        // If so change the css of the injection to the new code.
         let found_elements = [];
         added_css.forEach(function(element)
         {
@@ -247,6 +262,7 @@ function manipulate(request, update)
             }
         })
         
+        // Inject the requested CSS if the requested injection isn't already present on the page.
         if(!found_elements.includes(request.filename))
         {
             let head = document.head;
@@ -268,6 +284,7 @@ function manipulate(request, update)
                 found_elements.push(request.filename);
             }
         })
+        // Add the new JS to the page if it wasn't already on there.
         if(!found_elements.includes(request.filename))
         {
             let head = document.head;
@@ -278,6 +295,7 @@ function manipulate(request, update)
         }
         else
         {
+            // Remove the old JS script from the page and inject the new JS into the page.
             remove_request = {todo:"removeJS",value:request.filename}
             remove_manipulation(remove_request);
             let head = document.head;
@@ -293,9 +311,9 @@ function main()
 {
     var clickedEl = null;
     var selectedEl = null;
-    // Gets the element that was clicked on.
+    // Adds a listener for right clicking on elements on the page.
     document.addEventListener("mousedown", function(event){
-        //right click
+        // Copy the css path of the clicked element into the clipboard.
         if(event.button === 2) { 
             let current_elem = event.target;
             let path = "";
@@ -350,16 +368,19 @@ function main()
         {
             let resp = get_status(request.value);
             sendResponse({response:resp});
+            update_badge(); 
         }
         else if(["removeCSS","removeJS","removeHTML"].includes(request.todo))
         {
             remove_manipulation(request);
+            update_badge(); 
         }
         if(["changeHTML","changeCSS","changeJS"].includes(request.todo))
         {
-            // send message to change the badge to display "On"
             manipulate(request,true);
+            update_badge(); 
         }
         
-    });    
+    });
+    update_badge();    
 }

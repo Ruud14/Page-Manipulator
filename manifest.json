@@ -2,7 +2,7 @@
     "manifest_version":2,
     "name":"Page Manipulator",
     "version":"0.3.0",
-    "description":"Inject HTML, CSS or JavaScript to your favorite web-pages. These changes will, of course, only show up on your screen. You can save the changes you make and have them enabled everytime you visit a specific website.",
+    "description":"Inject HTML, CSS or JavaScript into any web-page. Have the changes you make be applied everytime you visit the specified website(s).",
     "icons":
     {
         "128":"icon128.png",
