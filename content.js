@@ -28,6 +28,14 @@ function load_data_from_storage(data)
         let active_websites = file_data["active_websites"].split('\n');
         let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
         let todo = 'change'+kind;
+
+        //Remove empty lines from active_websites
+        while(active_websites.includes(""))
+        {
+            let index = active_websites.lastIndexOf("");
+            active_websites.splice(index,1);
+        }
+
         // Complete incomplete urls
         for(let site of active_websites)
         {
@@ -53,18 +61,15 @@ function load_data_from_storage(data)
                 active_websites.push(site4);
             }
         }
-        //Remove empty lines from active_websites
-        while(active_websites.includes(""))
-        {
-            let index = active_websites.lastIndexOf("");
-            active_websites.splice(index,1);
-        }
+
         if(active_websites.includes("all"))
         {
             let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
             manipulate(req,false);
         }
-        else if(mode === "recursive")
+
+        // Check if the current website is in active_websites according to the mode.
+        if(mode === "recursive")
         {
             for(let site of active_websites)
             {
@@ -358,8 +363,8 @@ function main()
         }
     }, true);
     
+    // Add the listener for messages.
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        // Saves the clicked on element to the clipboard.
         if(request.todo === "getClickedEl") {
             navigator.clipboard.writeText(clickedEl);
         }

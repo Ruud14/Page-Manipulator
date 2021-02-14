@@ -450,8 +450,17 @@ class Navigation
                 if(element.filename === this.editor.active_file)
                 {
                     let index = this.nav_items.indexOf(element);
-                    this.nav_items[index].active = this.active_checkbox.checked;
-                    this.editor.save_current_file();
+                    // Only allow the active checkbox to be checked when there are active websites specified.
+                    if(this.nav_items[index].active_websites.replaceAll(/\s/g, "") === "" && this.active_checkbox.checked === true)
+                    {
+                        alert("You must first specify the active websites in the 'active websites' textarea. If you want this manipulation to be active on all webistes, put 'all' into the 'active websites' textarea.");
+                        this.active_checkbox.checked = false;
+                    }
+                    else
+                    {
+                        this.nav_items[index].active = this.active_checkbox.checked;
+                        this.editor.save_current_file();
+                    }
                 }
             }
         }.bind(this);
@@ -506,9 +515,27 @@ class Navigation
             }
         }.bind(this);
 
+        let active_sites_textarea_leave_function = function()
+        {
+            for(let element of this.nav_items)
+            {
+                if(element.filename === this.editor.active_file)
+                {
+                    let index = this.nav_items.indexOf(element);
+                    this.nav_items[index].active_websites = this.enabled_sites_text_area.value;
+                    if(this.enabled_sites_text_area.value.replaceAll(/\s/g,"") === "" && this.active_checkbox.checked === true)
+                    {
+                        this.nav_items[index].active = false;
+                        this.active_checkbox.checked = false;
+                    }
+                    this.editor.save_current_file();
+                }
+            }
+        }.bind(this)
+
         // Autosave when changing the 'active sites' textarea.
         this.enabled_sites_text_area.onkeyup = active_sites_textarea_change_function;
-        this.enabled_sites_text_area.onchange = active_sites_textarea_change_function;
+        this.enabled_sites_text_area.onchange = active_sites_textarea_leave_function;
 
         // Change the page to the javascript page.
         this.js_button.onclick = function()

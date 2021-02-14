@@ -43,6 +43,12 @@ function sendActiveTabChangedMessage(tabId)
     chrome.tabs.sendMessage(tabId, {todo: "activeTabChanged"});
 }
 
+// Update the badge when switching active browser tabs.
 chrome.tabs.onActivated.addListener(function(activeInfo) {
     sendActiveTabChangedMessage(activeInfo.tabId);
+});
+
+// Update the badge when (re)loading a web page.
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    sendActiveTabChangedMessage(tabId);
 });
