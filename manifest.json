@@ -27,7 +27,8 @@
             "run_at": "document_start",
             "matches":["<all_urls>"],
             "js": ["content.js"],
-            "css": ["content.css"]
+            "css": ["content.css"],
+            "match_about_blank": true
         } 
     ],
     "permissions": [

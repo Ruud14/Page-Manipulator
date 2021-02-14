@@ -32,7 +32,7 @@ class YoutubeInator
         let all_dates = document.getElementsByClassName("date style-scope ytd-video-secondary-info-renderer");
         for(let date of all_dates)
         {
-            date.innerText = "Gepubliceerd op "+this.value+" jan. "+this.value+this.value;
+            date.innerText = "Published on "+this.value;
         } 
     }
     change_commenter()
@@ -61,7 +61,7 @@ class YoutubeInator
         }
         for(let el of show_all_comments)
         {
-            el.innerText = this.value+" antwoorden bekijken"
+            el.innerText = this.value+" see answers"
         }
     }
     change_views()
@@ -70,13 +70,13 @@ class YoutubeInator
         let main_view_count = document.getElementsByClassName("view-count style-scope yt-view-count-renderer");
         for(let view of main_view_count)
         {
-            view.innerText = this.value+" weergaven";
+            view.innerText = this.value+" views";
         }
         for(let view of recommended_view_count)
         {
             if(view.id === "additional-metadata-line")
             {
-                view.innerText = this.value+" weergaven";
+                view.innerText = this.value+" views";
             }
             else{
                 view.innerText = this.value;
