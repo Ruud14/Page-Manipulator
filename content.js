@@ -15,7 +15,6 @@ function load_data_from_storage(data)
 {
     //populate the array.
     let url = location.href;
-    console.log(url);
     let filenames = Array.from(Object.keys(data));
     let filedatas = Array.from(Object.values(data))
     for(let i =0;i<filenames.length;i++)
@@ -140,12 +139,17 @@ function get_status(filename)
 }
 
 // Checks if there are any active manipulations.
-// If not it will set the badge to "Off".
+// Change the badge to "On" if there are any.
+// Change the badge to "Off" if there are none.
 function update_badge()
 {
     if(added_html.length + added_css.length + added_js.length === 0)
     {
         chrome.runtime.sendMessage({todo:"SetBadge", value:"Off"});
+    }
+    else
+    {
+        chrome.runtime.sendMessage({todo:"SetBadge", value:"On"});
     }
 }
 
@@ -209,8 +213,6 @@ function manipulate(request, update)
     {
         return;
     }
-    // Set the badge to "On".
-    chrome.runtime.sendMessage({todo:"SetBadge", value:"On"});
     if(request.todo==="changeHTML" && (page_loaded||update))
     {
         // Check if the requested HTML element is alread injected into the page.
@@ -380,7 +382,10 @@ function main()
             manipulate(request,true);
             update_badge(); 
         }
+        else if(request.todo === "activeTabChanged")
+        {
+            update_badge(); 
+        }
         
     });
-    update_badge();    
 }
