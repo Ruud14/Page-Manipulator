@@ -285,6 +285,7 @@ class Editor
         current_file_data.position = this.navigator.nav_items[index].position;
         current_file_data.mode = this.navigator.nav_items[index].mode;
         current_file_data.active = this.navigator.nav_items[index].active;
+        current_file_data.reload_on_remove = (this.navigator.nav_items[index].reload_on_remove === undefined) ? false : this.navigator.nav_items[index].reload_on_remove;
         current_file_data.open = this.navigator.nav_items[index].open;
         current_file_data.last = (this.active_file === filename);
 
@@ -313,6 +314,7 @@ class Editor
         let current_file_name = this.active_file;
         let current_text = this.get_current_text();
         let checked = this.navigator.active_checkbox.checked;
+        let reload_on_remove = this.navigator.reload_on_remove_checkbox.checked;
         let active_websites = this.navigator.enabled_sites_text_area.value;
         let position = this.navigator.position_selection.options[this.navigator.position_selection.selectedIndex].value;
         let mode = this.navigator.mode_selection.options[this.navigator.mode_selection.selectedIndex].value;
@@ -325,6 +327,7 @@ class Editor
         current_file_data.position = position;
         current_file_data.mode = mode;
         current_file_data.active = checked;
+        current_file_data.reload_on_remove = (reload_on_remove === undefined) ? false : reload_on_remove;
 
         // Checks if the file was open or not.
         let index = this.navigator.get_nav_item_index_by_filename(current_file_name);
@@ -371,7 +374,7 @@ class Editor
 // 
 class File
 {
-    constructor(input, filename, text, active_websites, position,mode,active,open,last)
+    constructor(input, filename, text, active_websites, position, mode, active, reload_on_remove, open, last)
     {
         this.filename = filename; 
         this.text = text; // Contains the content of the file.
@@ -381,6 +384,7 @@ class File
         this.mode= mode; //Determines if the script should be run only on the exact specified page (exact) or also on sub-pages (recursive).
         this.element = input; // The button of the file.
         this.active = active; // Determines if the file should be run when the specified pages are loaded.
+        this.reload_on_remove = (reload_on_remove === undefined) ? false : reload_on_remove; // Determines if the page should reload after removing the manipulation.
         this.open = open; //Determines is open or not.
         this.last = last; //Determines if this is the file that was last open.
         this.kind = filename_to_kind(filename);
@@ -403,6 +407,7 @@ class Navigation
         this.html_button = document.getElementById("HTML-button");
         this.try_button = document.getElementById("try-button");
         this.remove_try_button = document.getElementById("remove-try-button");
+        this.reload_on_remove_checkbox = document.getElementById("reload-on-remove-checkbox");
         this.make_button = document.getElementById("make-button");
         this.delete_button = document.getElementById("delete-button");
         this.filename_textfield = document.getElementById("filename-textfield");
@@ -624,8 +629,13 @@ class Navigation
 
         }.bind(this);
         // remove the manipulation from the webpage.
-        this.remove_try_button.onclick = function()
+        this.remove_try_button.onclick = function(e)
         {
+            // Don't remove the manipulation when the reload_on_remove_checkbox is clicked.
+            var ev = e || window.event;
+            if(e.target !== this.remove_try_button)
+                return;
+            
             this.remove_try_button.style.display = "none";
             this.try_button.value="Manipulate";
             chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
@@ -635,15 +645,36 @@ class Navigation
                 }.bind(this))
             
             this.editor.save_current_file();
-            // Reload the page when js.
-            if(filename_to_kind(this.editor.active_file)==="JS")
+
+            // Reload the page when the reload_on_remove_checkbox is checked.
+            for(let element of this.nav_items)
             {
-                this.active_checkbox.checked = false;
-                chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                    chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
-                });
+                if(element.filename === this.editor.active_file)
+                {
+                    let index = this.nav_items.indexOf(element);
+                    if(this.nav_items[index].reload_on_remove === true)
+                    {
+                        this.active_checkbox.checked = false;
+                        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                            chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+                        });
+                    }
+                }
             }
+            
             show_message("Removed Manipulation");
+        }.bind(this)
+
+        this.reload_on_remove_checkbox.onchange = function(){
+            for(let element of this.nav_items)
+            {
+                if(element.filename === this.editor.active_file)
+                {
+                    let index = this.nav_items.indexOf(element);
+                    this.nav_items[index].reload_on_remove = this.reload_on_remove_checkbox.checked;
+                    this.editor.save_current_file();
+                }
+            }
         }.bind(this)
 
         this.delete_button.onclick = function()
@@ -691,8 +722,7 @@ class Navigation
                         this.disable_all_menus();
                         this.enable_menu_of_kind("EDITOR");
                     }.bind(this);
-
-                    let new_nav_item = new File(input, filename,"","","top",true,true,true);
+                    let new_nav_item = new File(input, filename,"","","top",true,false,true,true);
                     this.nav_items.push(new_nav_item);
                     
                     this.editor.open_file(filename,"");
@@ -781,6 +811,7 @@ class Navigation
                 let position = file_data["position"];
                 let mode = file_data["mode"];
                 let active = file_data["active"];
+                let reload_on_remove = file_data["reload_on_remove"];
                 let open = file_data["open"];
                 let last = file_data["last"];
                 let input = this.add_nav_button(filename);
@@ -793,8 +824,8 @@ class Navigation
                     this.disable_all_menus();
                     this.enable_menu_of_kind("EDITOR");
                 }.bind(this);
-
-                let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,open,last);
+                
+                let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,reload_on_remove,open,last);
                 this.nav_items.push(nav_item);
             }
 
@@ -813,6 +844,7 @@ class Navigation
                     let position = file_data["position"];
                     let mode = file_data["mode"];
                     let active = file_data["active"];
+                    let reload_on_remove = file_data["reload_on_remove"];
                     let open = file_data["open"];
                     let last = file_data["last"];
                     let input = this.add_nav_button(filename);
@@ -825,8 +857,8 @@ class Navigation
                         this.disable_all_menus();
                         this.enable_menu_of_kind("EDITOR");
                     }.bind(this);
-    
-                    let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,open,last);
+                   
+                    let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,reload_on_remove,open,last);
                     this.nav_items.push(nav_item);
                 }
             }.bind(this));
@@ -978,6 +1010,7 @@ class Navigation
                 let index = this.get_nav_item_index_by_filename(this.editor.active_file);
 
                 this.active_checkbox.checked = this.nav_items[index].active;
+                this.reload_on_remove_checkbox.checked = this.nav_items[index].reload_on_remove;
                
                 this.enabled_sites_text_area.value = this.nav_items[index].active_websites;
                 let positoin_options = this.position_selection.options;

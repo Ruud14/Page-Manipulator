@@ -25,6 +25,7 @@ function load_data_from_storage(data)
         let filetext = file_data["text"];
         let position = file_data["position"];
         let active = file_data["active"];
+        let reload_on_remove = (file_data["reload_on_remove"]) ? false : file_data["reload_on_remove"];
         let mode = file_data["mode"];
         let active_websites = file_data["active_websites"].split('\n');
         let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
@@ -65,7 +66,7 @@ function load_data_from_storage(data)
 
         if(active_websites.includes("all"))
         {
-            let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
+            let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active, reload_on_remove:reload_on_remove}
             manipulate(req,false);
         }
 
@@ -76,7 +77,7 @@ function load_data_from_storage(data)
             {
                 if(url.startsWith(site))
                 {
-                    let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
+                    let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active, reload_on_remove:reload_on_remove}
                     manipulate(req,false);
                     break;
                 }
@@ -86,7 +87,7 @@ function load_data_from_storage(data)
         {
             if(active_websites.includes(url))
             {
-                let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active}
+                let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active, reload_on_remove:reload_on_remove}
                 manipulate(req,false);
             }
         }
@@ -233,11 +234,9 @@ function manipulate(request, update)
                 if(request.position !== element[2])
                 {
                     // Remove the old element.
-                    request.todo = "removeHTML";
-                    request.value = request.filename;
-                    remove_manipulation(request);
+                    remove_request = {todo:"removeHTML",value:request.filename}
+                    remove_manipulation(remove_request);
                     // Add the new element.
-                    request.todo = "changeHTML";
                     manipulate(request, true);
                 }
                 else
@@ -327,11 +326,7 @@ function manipulate(request, update)
             // Remove the old JS script from the page and inject the new JS into the page.
             remove_request = {todo:"removeJS",value:request.filename}
             remove_manipulation(remove_request);
-            let head = document.head;
-            let script = document.createElement('script');
-            script.textContent = request.code;
-            head.appendChild(script);
-            added_js.push([request.filename,script]);  
+            manipulate(request, true);
         }
     }
 }
