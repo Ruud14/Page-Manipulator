@@ -655,9 +655,12 @@ class Navigation
                     if(this.nav_items[index].reload_on_remove === true)
                     {
                         this.active_checkbox.checked = false;
+                        this.nav_items[index].active = false;
+                        this.editor.save_current_file();
                         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                             chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
                         });
+                        break;
                     }
                 }
             }

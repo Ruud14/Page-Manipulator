@@ -85,7 +85,7 @@ function load_data_from_storage(data)
         }
         else if(mode === "exact")
         {
-            if(active_websites.includes(url))
+            if(active_websites.includes(url) || active_websites.includes(url.slice(0,-1)))
             {
                 let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active, reload_on_remove:reload_on_remove}
                 manipulate(req,false);

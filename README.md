@@ -68,6 +68,7 @@ Or follow the steps below.
         - This button also works when the 'Active' checkbox is unchecked.
     - The 'Remove Manip.' Button:
         - Removes the manipulation from the page.
+        - If the "Auto ⟳" checkbox is checked, the page will automatically reload after pressing the 'Remove Manip.' button. The 'active' checkbox will also be unchecked.
     - The 'Delete' button:
         - Deletes the current file from the extension storage.
 - **You can right click any element on a page to get the css path of that element.**
