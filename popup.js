@@ -128,6 +128,27 @@ class Editor
         })
         
     }
+    // Hides the editor and the open files.
+    hide()
+    {
+        // Hide the editor element.
+        this.editor_element.style.display = "none";
+        // Hide all open files. This basically closes all the files without saving. 
+        // So after reopening the extension, the files will be open again.
+        let all_open_files = document.getElementsByClassName("open-files-list-item");
+        //close all the files.
+        Array.from(this.navigator.nav_items).forEach(function(element){
+            element.open = false;
+        })
+        //Delete the file buttons.
+        Array.from(all_open_files).forEach(function(element)
+        {
+            element.parentNode.removeChild(element);
+        })
+        // Clear the files list.
+        this.files = [];
+
+    }
     // Closes the editor of the file with the specified filename.
     close_file(filename)
     {
@@ -420,10 +441,16 @@ class Navigation
         this.position_label = document.getElementById("position-label");
         this.filename_input_label = document.getElementById("filename-input-label");
         this.active_checkbox = document.getElementById("active-checkbox");
+        this.info_text = document.getElementById("info-text");
+        this.error_text = document.getElementById("error-text");
 
         this.zoom_out_button = document.getElementById("zoom-out-button");
         this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
         this.zoom_in_button = document.getElementById("zoom-in-button");
+
+        // This will be set to true whenever the extension is opened on a page that can't be manipulated. 
+        // This boolean prevents other code from running if set to true. 
+        let invallid_page = false;
 
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
@@ -433,11 +460,10 @@ class Navigation
             this.set_zoom_factor(parseInt(localStorage["current_zoom_level"]));
         }
 
-        
         // These arrays only contain the items that are always there.
-        this.main_nav_buttons = [this.js_button,this.css_button,this.html_button];
+        this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text];
         this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button];
-        this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div,this.filename_input_label]; 
+        this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div,this.filename_input_label, this.info_text]; 
         this.nav_items =[];
         this.bind_buttons();
         this.disable_all_menus();
@@ -593,7 +619,7 @@ class Navigation
             // disable the backbutton.
             this.back_div.style.display = "none";
             // change the main nav buttons to be visible.
-            this.main_nav_buttons.forEach(function(element)
+            this.main_nav_items.forEach(function(element)
             {
                 element.style.display ="block";
             })
@@ -882,6 +908,7 @@ class Navigation
     // Clears the navbar, and populates it with the new data.
     reload_nav_items()
     {
+        console.log("YE1");
         // clear the ul's.
         let all_js_file_buttons = Array.from(document.getElementsByClassName('saved-js-nav-button'));
         let all_css_file_buttons =  Array.from(document.getElementsByClassName('saved-css-nav-button'));
@@ -901,6 +928,7 @@ class Navigation
             chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
             {
                 chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: element.filename}, function(response) {
+                    console.log("YE2");
                     if(response != null)
                     {
                         if(response.response===true)
@@ -914,8 +942,15 @@ class Navigation
                     }
                     else
                     {
-                        window.close();
-                        chrome.browserAction.disable(tabs[0].id,function(){});
+                        console.log("YE3");
+                        // The extension is opened on a page that it can't manipulate.
+                        if(chrome.runtime.lastError) {
+                            console.log("YE4");
+                            if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
+                                console.log("YE5");
+                                this.enable_menu_of_kind("ERROR");
+                            } 
+                        }
                     }
                 }.bind(this))
             }.bind(this))
@@ -952,6 +987,11 @@ class Navigation
     // Enables the specified menu. options: "JS","CSS","HTML","MAIN","EDITOR","NEW".
     enable_menu_of_kind(kind)
     {
+        // Prevent changing menus when the user on a page that can't be manipulated.
+        if(this.invallid_page)
+        {
+            return;
+        }
         this.get_saved_nav_items();
         this.reload_nav_items();
         this.disable_all_menus();
@@ -968,12 +1008,18 @@ class Navigation
                     element.style.display = "block";
                 })
                 this.new_button.style.display = "block";
+                this.info_text.style.display = "block";
                 break;
             case "MAIN":
-                this.main_nav_buttons.forEach(function(element)
+                this.main_nav_items.forEach(function(element)
                 {
                     element.style.display = "block";
                 })
+                break;
+            case "ERROR":
+                this.invallid_page = true;
+                this.editor.hide();
+                this.error_text.style.display = "block";
                 break;
             case "EDITOR":
                 this.active_checkbox.style.display = "inline";
@@ -996,8 +1042,12 @@ class Navigation
                         }
                         else
                         {
-                            window.close();
-                            chrome.browserAction.disable(tabs[0].id,function(){});
+                            // The extension is opened on a page that it can't manipulate.
+                            if(chrome.runtime.lastError) {
+                                if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
+                                    this.enable_menu_of_kind("ERROR");
+                                } 
+                            }
                         }
                     }.bind(this))
                 }.bind(this))
@@ -1070,11 +1120,13 @@ class Navigation
                 this.new_button.style.display = "none";
                 break;
             case "MAIN":
-                this.main_nav_buttons.forEach(function(element)
+                this.main_nav_items.forEach(function(element)
                 {
                     element.style.display = "none";
                 })
                 break;
+            case "ERROR":
+                this.error_text.style.display = "none";
             case "EDITOR":
                 this.editor_menu_items.forEach(function(element)
                 {
@@ -1106,6 +1158,7 @@ class Navigation
         this.disable_menu_of_kind("HTML");
         this.disable_menu_of_kind("EDITOR");
         this.disable_menu_of_kind("NEW");
+        this.disable_menu_of_kind("ERROR");
     }
     
 }
