@@ -908,7 +908,6 @@ class Navigation
     // Clears the navbar, and populates it with the new data.
     reload_nav_items()
     {
-        console.log("YE1");
         // clear the ul's.
         let all_js_file_buttons = Array.from(document.getElementsByClassName('saved-js-nav-button'));
         let all_css_file_buttons =  Array.from(document.getElementsByClassName('saved-css-nav-button'));
@@ -925,35 +924,42 @@ class Navigation
         this.nav_items.forEach(function(element)
         {
             let li = document.createElement('li');
-            chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
+            // Make the button greyed out when the file.active is set to false.
+            if(element.active)
             {
-                chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: element.filename}, function(response) {
-                    console.log("YE2");
-                    if(response != null)
-                    {
-                        if(response.response===true)
-                        {
-                            element.element.style.opacity = 1;
-                        }
-                        else
-                        {
-                            element.element.style.opacity = 0.5;
-                        }
-                    }
-                    else
-                    {
-                        console.log("YE3");
-                        // The extension is opened on a page that it can't manipulate.
-                        if(chrome.runtime.lastError) {
-                            console.log("YE4");
-                            if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
-                                console.log("YE5");
-                                this.enable_menu_of_kind("ERROR");
-                            } 
-                        }
-                    }
-                }.bind(this))
-            }.bind(this))
+                element.element.style.opacity = 1;
+            }
+            else
+            {
+                element.element.style.opacity = 0.5;
+            }
+            
+            // The old code that made the button greyed out when the file isn't injected into the CURRENT page.
+            // chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
+            // {
+            //     chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: element.filename}, function(response) {
+            //         if(response != null)
+            //         {
+            //             if(response.response===true)
+            //             {
+            //                 element.element.style.opacity = 1;
+            //             }
+            //             else
+            //             {
+            //                 element.element.style.opacity = 0.5;
+            //             }
+            //         }
+            //         else
+            //         {
+            //             // The extension is opened on a page that it can't manipulate.
+            //             if(chrome.runtime.lastError) {
+            //                 if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
+            //                     this.enable_menu_of_kind("ERROR");
+            //                 } 
+            //             }
+            //         }
+            //     }.bind(this))
+            // }.bind(this))
             
             li.appendChild(element.element);
             this.navbar.appendChild(li);
