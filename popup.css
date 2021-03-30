@@ -112,7 +112,7 @@ header{
 }
 .file-title-button
 {
-    max-width: 50px;
+    max-width: 200px;
     border: none;
     padding-right:5px;
     background-color:var(--button-color);

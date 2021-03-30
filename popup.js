@@ -6,6 +6,10 @@ window.onload = function statup()
     main()
     
 }
+
+// ---------------------------- General functions ----------------------------
+
+
 // Inserts code into the current site.
 function insert(todo,code,position,mode,filename)
 // todo shoud be > changeHTML, changeCSS or changeJS
@@ -36,6 +40,37 @@ function get_file_size(file_object)
     let stringification = JSON.stringify(file_object);
     return stringification.length;
 }
+
+// Function that checks if communication between the the front and backend code is possible.
+// It will run the onFail function if communication is not possible.
+// This function will be running recursively until communication is possible.
+function communication_test(onFail, onSuccess, retryTimeMiliSeconds=500)
+{
+    chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
+    {
+        chrome.tabs.sendMessage(tabs[0].id, {todo:"comTest"}, function(response) {
+            // The extension is opened on a page that it can't manipulate.
+            if(chrome.runtime.lastError) {
+                if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
+                    onFail();
+                    console.log("Boohoo");
+                    setTimeout(function(){communication_test(onFail, onSuccess, retryTimeMiliSeconds)}, retryTimeMiliSeconds);
+                }
+                else{
+                    console.log("YEE");
+                    onSuccess();
+                } 
+            }
+            else{
+                console.log("YEE2");
+                onSuccess();
+            }
+
+        });
+    });
+}
+
+// ------------------------------------------------------------------------
 
 // controlls the edit window
 class Editor
@@ -126,7 +161,24 @@ class Editor
                 all_close_buttons[Array.from(all_buttons).indexOf(element)].style.opacity = 0.5;
             }
         })
+        // Resize all open file buttons to fit the window.
+        this.resize_open_file_buttons();
         
+    }
+    // Changes the width of the open file buttons to fit the extension window.
+    resize_open_file_buttons()
+    {
+        let all_buttons = document.getElementsByClassName("file-title-button");
+        let editor_width_str = this.editor_element.style["min-width"];
+        let button_width = Math.round((parseInt(editor_width_str.substring(0, editor_width_str.length - 2))-20)/all_buttons.length);
+        // Also take the with of the close buttons into a count.
+        button_width = button_width-3*all_buttons.length;
+        Array.from(all_buttons).forEach(function(element)
+        {
+            console.log(editor_width_str);
+            console.log(button_width);
+            element.style.width = button_width+"px";
+        })
     }
     // Hides the editor and the open files.
     hide()
@@ -200,7 +252,6 @@ class Editor
         li.className = "open-files-list-item";
         close_button.innerHTML = "x";
         close_button.className = "close-button"
-        self=this;
         close_button.onclick = function()
         {
             this.close_file(filename);
@@ -448,10 +499,6 @@ class Navigation
         this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
         this.zoom_in_button = document.getElementById("zoom-in-button");
 
-        // This will be set to true whenever the extension is opened on a page that can't be manipulated. 
-        // This boolean prevents other code from running if set to true. 
-        let invallid_page = false;
-
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
         this.current_zoom_level = 0;
@@ -467,7 +514,11 @@ class Navigation
         this.nav_items =[];
         this.bind_buttons();
         this.disable_all_menus();
-        this.enable_menu_of_kind("MAIN");
+        // Test if communication with the backend is possible.
+        // Enable the 'ERROR' menu if this isn't the case.
+        communication_test(
+            function(){this.enable_menu_of_kind("ERROR")}.bind(this), //onFail
+            function(){this.enable_menu_of_kind("MAIN")}.bind(this));//onSuccess
         setTimeout(function() {this.load_open_files();}.bind(this), 100);
     }
     // binds the correct functions to the buttons.
@@ -785,7 +836,7 @@ class Navigation
             }
         }.bind(this);
     }
-
+    // Changes the size of everything inside the extension when the zoom level is changed.
     set_zoom_factor(factor)
     {
         if(factor >= 0)
@@ -805,6 +856,8 @@ class Navigation
             this.navbar.style["min-height"] = nav_bar_height.toString()+"px";
             this.zoom_percentage_label.innerHTML = (this.current_zoom_level+100).toString() + " %";
         }
+        // Resize the buttons of all open files to fit the size of the extension window.
+        this.editor.resize_open_file_buttons();
     }
 
     // Creates a new button for the specified filename.
@@ -933,34 +986,6 @@ class Navigation
             {
                 element.element.style.opacity = 0.5;
             }
-            
-            // The old code that made the button greyed out when the file isn't injected into the CURRENT page.
-            // chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
-            // {
-            //     chrome.tabs.sendMessage(tabs[0].id, {todo:"getStatus", value: element.filename}, function(response) {
-            //         if(response != null)
-            //         {
-            //             if(response.response===true)
-            //             {
-            //                 element.element.style.opacity = 1;
-            //             }
-            //             else
-            //             {
-            //                 element.element.style.opacity = 0.5;
-            //             }
-            //         }
-            //         else
-            //         {
-            //             // The extension is opened on a page that it can't manipulate.
-            //             if(chrome.runtime.lastError) {
-            //                 if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
-            //                     this.enable_menu_of_kind("ERROR");
-            //                 } 
-            //             }
-            //         }
-            //     }.bind(this))
-            // }.bind(this))
-            
             li.appendChild(element.element);
             this.navbar.appendChild(li);
         }.bind(this))
@@ -993,11 +1018,6 @@ class Navigation
     // Enables the specified menu. options: "JS","CSS","HTML","MAIN","EDITOR","NEW".
     enable_menu_of_kind(kind)
     {
-        // Prevent changing menus when the user on a page that can't be manipulated.
-        if(this.invallid_page)
-        {
-            return;
-        }
         this.get_saved_nav_items();
         this.reload_nav_items();
         this.disable_all_menus();
@@ -1022,8 +1042,8 @@ class Navigation
                     element.style.display = "block";
                 })
                 break;
+            // This menu is shown whenever the extension is opened on a page that can't be manipulated.
             case "ERROR":
-                this.invallid_page = true;
                 this.editor.hide();
                 this.error_text.style.display = "block";
                 break;
@@ -1051,7 +1071,10 @@ class Navigation
                             // The extension is opened on a page that it can't manipulate.
                             if(chrome.runtime.lastError) {
                                 if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
-                                    this.enable_menu_of_kind("ERROR");
+                                    communication_test(
+                                        function(){this.enable_menu_of_kind("ERROR")}.bind(this), //onFail
+                                        function(){this.enable_menu_of_kind("MAIN")}.bind(this)); //onSuccess
+                                    return;
                                 } 
                             }
                         }
