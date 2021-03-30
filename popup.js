@@ -33,6 +33,16 @@ function filename_to_kind(filename)
 {
     return (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
 }
+// Converts name of the language based on the file extension.
+function kind_to_language(kind)
+{
+    if(kind === "JS"){
+        return "JavaScript";
+    }
+    else{
+        return kind;
+    }
+}
 
 // Get string lenght of a javascript object.
 function get_file_size(file_object)
@@ -199,8 +209,13 @@ class Editor
         })
         // Clear the files list.
         this.files = [];
-
     }
+    reveal()
+    {
+        // reveal the editor element.
+        this.editor_element.style.display = "block";
+    }
+
     // Closes the editor of the file with the specified filename.
     close_file(filename)
     {
@@ -494,6 +509,8 @@ class Navigation
         this.active_checkbox = document.getElementById("active-checkbox");
         this.info_text = document.getElementById("info-text");
         this.error_text = document.getElementById("error-text");
+        this.language_selection_label = document.getElementById("language-selection-label");
+        this.menu_title_label = document.getElementById("menu-title-label");
 
         this.zoom_out_button = document.getElementById("zoom-out-button");
         this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
@@ -508,7 +525,7 @@ class Navigation
         }
 
         // These arrays only contain the items that are always there.
-        this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text];
+        this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text, this.language_selection_label];
         this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button];
         this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div,this.filename_input_label, this.info_text]; 
         this.nav_items =[];
@@ -1035,8 +1052,11 @@ class Navigation
                 })
                 this.new_button.style.display = "block";
                 this.info_text.style.display = "block";
+                // Change the menu tile label.
+                this.menu_title_label.innerHTML = kind_to_language(kind);
                 break;
             case "MAIN":
+                this.menu_title_label.innerHTML = "Main Menu";
                 this.main_nav_items.forEach(function(element)
                 {
                     element.style.display = "block";
@@ -1045,9 +1065,11 @@ class Navigation
             // This menu is shown whenever the extension is opened on a page that can't be manipulated.
             case "ERROR":
                 this.editor.hide();
+                this.menu_title_label.innerHTML = "";
                 this.error_text.style.display = "block";
                 break;
             case "EDITOR":
+                this.menu_title_label.innerHTML = kind_to_language(filename_to_kind(this.editor.active_file));
                 this.active_checkbox.style.display = "inline";
                 this.active_label.style.display = "inline";
                 this.editor_menu_items.forEach(function(element)
@@ -1119,6 +1141,7 @@ class Navigation
                 
                 break;
             case "NEW":
+                this.menu_title_label.innerHTML = "New File";
                 this.new_menu_items.forEach(function(element)
                 {
                     element.style.display = "block";
@@ -1156,6 +1179,8 @@ class Navigation
                 break;
             case "ERROR":
                 this.error_text.style.display = "none";
+                this.editor.reveal();
+                break;
             case "EDITOR":
                 this.editor_menu_items.forEach(function(element)
                 {

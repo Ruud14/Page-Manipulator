@@ -186,6 +186,14 @@ header{
     z-index: -5;
 }
 
+.division-line
+{
+    width: 130px;
+    background-color: var(--button-color);
+    clear:both; 
+    border-top: 1px solid #ff8800;
+    margin: 5px;
+}
 
 footer a
 {
