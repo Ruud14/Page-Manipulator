@@ -492,6 +492,9 @@ class Navigation
         this.js_button = document.getElementById("JS-button");
         this.css_button = document.getElementById("CSS-button");
         this.html_button = document.getElementById("HTML-button");
+        this.info_button = document.getElementById("info-button");
+        this.about_button = document.getElementById("about-button");
+        this.donate_button = document.getElementById("donate-button");
         this.try_button = document.getElementById("try-button");
         this.remove_try_button = document.getElementById("remove-try-button");
         this.reload_on_remove_checkbox = document.getElementById("reload-on-remove-checkbox");
@@ -511,10 +514,15 @@ class Navigation
         this.error_text = document.getElementById("error-text");
         this.language_selection_label = document.getElementById("language-selection-label");
         this.menu_title_label = document.getElementById("menu-title-label");
+        this.extra_info_label = document.getElementById("extra-info-label");
+        this.project_support_label = document.getElementById("project-support-label");
 
         this.zoom_out_button = document.getElementById("zoom-out-button");
         this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
         this.zoom_in_button = document.getElementById("zoom-in-button");
+
+        this.menu_title_divider = document.getElementById("menu-title-divider");
+        this.main_menu_division_lines = document.getElementsByClassName("main-menu-division-line");
 
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
@@ -525,7 +533,8 @@ class Navigation
         }
 
         // These arrays only contain the items that are always there.
-        this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text, this.language_selection_label];
+        this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text, this.info_button, this.about_button, this.language_selection_label, this.donate_button, this.extra_info_label, this.project_support_label].concat(Array.from(this.main_menu_division_lines));
+        console.log(this.main_nav_items);
         this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button];
         this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div,this.filename_input_label, this.info_text]; 
         this.nav_items =[];
@@ -1067,6 +1076,7 @@ class Navigation
                 this.editor.hide();
                 this.menu_title_label.innerHTML = "";
                 this.error_text.style.display = "block";
+                this.menu_title_divider.style.display = "none";
                 break;
             case "EDITOR":
                 this.menu_title_label.innerHTML = kind_to_language(filename_to_kind(this.editor.active_file));
@@ -1180,6 +1190,7 @@ class Navigation
             case "ERROR":
                 this.error_text.style.display = "none";
                 this.editor.reveal();
+                this.menu_title_divider.style.display = "block";
                 break;
             case "EDITOR":
                 this.editor_menu_items.forEach(function(element)

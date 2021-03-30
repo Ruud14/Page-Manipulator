@@ -143,6 +143,10 @@ header{
     min-width: 420px;
     min-height: 230px;
 }
+#donate-button
+{
+    margin-top: 30px;
+}
 
 
 #enabled-sites-text-area
@@ -192,7 +196,7 @@ header{
     background-color: var(--button-color);
     clear:both; 
     border-top: 1px solid #ff8800;
-    margin: 5px;
+    margin: 10px 5px 10px;
 }
 
 footer a
