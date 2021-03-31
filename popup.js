@@ -185,8 +185,6 @@ class Editor
         button_width = button_width-3*all_buttons.length;
         Array.from(all_buttons).forEach(function(element)
         {
-            console.log(editor_width_str);
-            console.log(button_width);
             element.style.width = button_width+"px";
         })
     }
@@ -493,7 +491,7 @@ class Navigation
         this.css_button = document.getElementById("CSS-button");
         this.html_button = document.getElementById("HTML-button");
         this.info_button = document.getElementById("info-button");
-        this.about_button = document.getElementById("about-button");
+        this.bug_report_button = document.getElementById("bug-report-button");
         this.donate_button = document.getElementById("donate-button");
         this.try_button = document.getElementById("try-button");
         this.remove_try_button = document.getElementById("remove-try-button");
@@ -517,6 +515,7 @@ class Navigation
         this.extra_info_label = document.getElementById("extra-info-label");
         this.project_support_label = document.getElementById("project-support-label");
 
+        // Zoom factor elements.
         this.zoom_out_button = document.getElementById("zoom-out-button");
         this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
         this.zoom_in_button = document.getElementById("zoom-in-button");
@@ -533,8 +532,7 @@ class Navigation
         }
 
         // These arrays only contain the items that are always there.
-        this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text, this.info_button, this.about_button, this.language_selection_label, this.donate_button, this.extra_info_label, this.project_support_label].concat(Array.from(this.main_menu_division_lines));
-        console.log(this.main_nav_items);
+        this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text, this.info_button, this.bug_report_button, this.language_selection_label, this.donate_button, this.extra_info_label, this.project_support_label].concat(Array.from(this.main_menu_division_lines));
         this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button];
         this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div,this.filename_input_label, this.info_text]; 
         this.nav_items =[];
@@ -551,6 +549,18 @@ class Navigation
     // This method should only be run once -> by the constructor.
     bind_buttons()
     {
+        // Bind the info button on the main menu.
+        this.info_button.onclick = function()
+        {   
+            window.open("https://github.com/Ruud14/Page-Manipulator", '_blank').focus();
+        }.bind(this);
+
+        // Bind the bug report button on the main menu.
+        this.bug_report_button.onclick = function()
+        {   
+            window.open("https://github.com/Ruud14/Page-Manipulator/issues", '_blank').focus();
+        }.bind(this);
+
         // Autosave when changing the "active" checkbox.
         this.active_checkbox.onchange = function(){ 
             for(let element of this.nav_items)
