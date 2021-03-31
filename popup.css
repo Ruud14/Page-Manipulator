@@ -148,6 +148,10 @@ header{
     margin-top: 30px;
 }
 
+#change-filename-button
+{
+    margin:0px;
+}
 
 #enabled-sites-text-area
 {  
@@ -180,6 +184,22 @@ header{
     max-width: 125px;
     margin-left: 5px;
 }
+#change-filename-textfield
+{
+    background-color:var(--textarea-color);
+    color:var(--button-color);
+    max-width: 125px;
+    margin-left: 5px;
+}
+
+#change-filename-label
+{
+    width : 100px;
+    overflow:hidden;
+    display:inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 #info-text
 {
     position: absolute;

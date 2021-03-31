@@ -65,7 +65,25 @@
                 <li>
                     <input type="submit" value="+ New +" id="new-button" class="nav-button">
                 </li>
+
+                <li>
+                    <h3 class="labeltext" id=filename-label>Filename:</h3>
+                    <div id="change-filename-not-editing-div">
+                        <i><h3 class="labeltext" id=change-filename-label>Google.com.js</h3></i>
+                        <img id="change-filename-button" src="https://cdn1.iconfinder.com/data/icons/website-internet/48/website_-_pencil-512.png" style="width: 20px; height: 20px;">
+                    </div>
+                    <div id="change-filename-editing-div">
+                        <input type="text" value="filename" id="change-filename-textfield" maxlength="50">
+                        <div id="change-filename-button-div">
+                            <input type="submit" value="Cancel" id="cancel-filename-change-button" class="nav-button small-button">
+                            <input type="submit" value="Save" id="save-filename-change-button" class="nav-button small-button">
+                        </div>
+                    </div>
+                </li>
+
+                <hr class="division-line editor-menu-division-line">
                 
+
                 <li>
                     <div>
                         <h3 class="labeltext" id=active-label>Active:</h3>
@@ -75,7 +93,7 @@
               
                 <li>
                     <h3 class="labeltext" id=active-websites-label>Active websites:</h3>
-                    <textarea id="enabled-sites-text-area" placeholder="URL or 'all'">
+                    <textarea id="enabled-sites-text-area" placeholder="URL(s) or 'all'">
                     </textarea>
                 </li>
                 <li>

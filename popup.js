@@ -283,6 +283,7 @@ class Editor
         li.appendChild(close_button);
         ul.appendChild(li);
         this.make_button_active(filename);
+        return li;
     }
     // Creates a editor window for the file with the specified name and text.
     create_window(filename,text)
@@ -348,6 +349,53 @@ class Editor
         chrome.storage.sync.remove(filename,function(){});
         chrome.storage.local.remove(filename,function(){});
         show_message("Deleted "+filename);
+    }
+    change_current_file_name(new_filename)
+    {
+        let old_filename = this.active_file;
+        // Change the filename in the editor.
+        for(const [i, file] of this.files.entries())
+        {
+            if(file[0]===old_filename)
+            {
+                this.files[i][0] = new_filename;
+                this.active_file = new_filename;
+                break;
+            }
+        }
+        // Change the filename in the navigator.
+        for(let i=0; i<this.navigator.nav_items.length;i++)
+        {
+            if(this.navigator.nav_items[i].filename===old_filename)
+            {
+                this.navigator.nav_items[i].filename=new_filename;
+                break;
+            }
+        }
+        
+        let all_buttons = document.getElementsByClassName("file-title-button");
+
+        // Put the new filebutton in the position of the old one and remove the old one.
+        for(const element of Array.from(all_buttons))
+        {
+            if(element.value===old_filename)
+            {
+                // Create new filebutton.
+                let new_file_button = this.create_file_button(new_filename);
+                element.parentNode.parentNode.insertBefore(new_file_button, element.parentNode);
+                element.parentNode.parentNode.removeChild(element.parentNode);
+                break;
+            }
+        }
+
+        // Save the file in storage with a new name.
+        this.save_current_file();
+        // Remove the old file from storage.
+        chrome.storage.sync.remove(old_filename,function(){});
+        chrome.storage.local.remove(old_filename,function(){});
+
+        this.resize_open_file_buttons();
+        
     }
     save_file_by_name(filename)
     {
@@ -515,6 +563,17 @@ class Navigation
         this.extra_info_label = document.getElementById("extra-info-label");
         this.project_support_label = document.getElementById("project-support-label");
 
+        this.filename_label = document.getElementById("filename-label");
+        this.change_filename_not_editing_div = document.getElementById("change-filename-not-editing-div");
+        this.change_filename_label = document.getElementById("change-filename-label");
+        this.change_filename_button = document.getElementById("change-filename-button");
+
+        this.change_filename_editing_div = document.getElementById("change-filename-editing-div");
+        this.change_filename_textfield = document.getElementById("change-filename-textfield");
+        this.change_filename_button_div = document.getElementById("change-filename-button-div");
+        this.cancel_filename_change_button = document.getElementById("cancel-filename-change-button");
+        this.save_filename_change_button = document.getElementById("save-filename-change-button");
+
         // Zoom factor elements.
         this.zoom_out_button = document.getElementById("zoom-out-button");
         this.zoom_percentage_label = document.getElementById("zoom-percentage-label");
@@ -522,6 +581,7 @@ class Navigation
 
         this.menu_title_divider = document.getElementById("menu-title-divider");
         this.main_menu_division_lines = document.getElementsByClassName("main-menu-division-line");
+        this.editor_menu_division_lines = document.getElementsByClassName("editor-menu-division-line");
 
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
@@ -533,7 +593,9 @@ class Navigation
 
         // These arrays only contain the items that are always there.
         this.main_nav_items = [this.js_button,this.css_button,this.html_button, this.info_text, this.info_button, this.bug_report_button, this.language_selection_label, this.donate_button, this.extra_info_label, this.project_support_label].concat(Array.from(this.main_menu_division_lines));
-        this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,this.delete_button];
+        this.editor_menu_items = [this.back_div,this.try_button,this.active_websites_label, this.enabled_sites_text_area,
+            this.matching_pages_label,this.mode_selection,this.delete_button, this.filename_label, 
+            this.change_filename_not_editing_div, this.change_filename_editing_div].concat(Array.from(this.editor_menu_division_lines));
         this.new_menu_items = [this.make_button,this.filename_textfield,this.back_div,this.filename_input_label, this.info_text]; 
         this.nav_items =[];
         this.bind_buttons();
@@ -549,6 +611,44 @@ class Navigation
     // This method should only be run once -> by the constructor.
     bind_buttons()
     {
+        // Bind the filename changing button
+        this.change_filename_button.onclick = function()
+        {
+            this.change_filename_not_editing_div.style.display= "none";
+            this.change_filename_editing_div.style.display = "block";
+            this.change_filename_textfield.focus();
+
+        }.bind(this)
+
+        this.cancel_filename_change_button.onclick = function()
+        {
+            this.change_filename_not_editing_div.style.display = "block";
+            this.change_filename_editing_div.style.display= "none";
+        }.bind(this)
+
+        this.save_filename_change_button.onclick = function()
+        {
+            let new_filename = this.change_filename_textfield.value;
+            let split_parts = this.editor.active_file.split(".")
+            let file_extension = split_parts[split_parts.length - 1]
+
+            if(this.file_exists(new_filename))
+            {
+                alert("There already is a file with this name, Try a different one.");
+            }
+            else
+            {
+                // Add the correct file extension if there isn't one already.
+                if(!new_filename.endsWith("."+file_extension))
+                {
+                    new_filename+='.'+file_extension;
+                }
+                // Change the filename of the current file.
+                this.editor.change_current_file_name(new_filename);
+                this.enable_menu_of_kind("EDITOR");
+            }
+        }.bind(this)
+
         // Bind the info button on the main menu.
         this.info_button.onclick = function()
         {   
@@ -820,8 +920,11 @@ class Navigation
         this.make_button.onclick = function()
         {
             let filename = this.filename_textfield.value;
-            // Check if the file already exist by trying to get the current index.
-            if((this.get_nav_item_index_by_filename(filename) == null) && (this.get_nav_item_index_by_filename(filename+"."+this.current_menu.toLowerCase()) == null))
+            if(this.file_exists(filename))
+            {
+                alert("There already is a file with this name, Try a different one.");
+            }
+            else
             {
                 if(this.current_menu === "JS" || this.current_menu === "CSS" || this.current_menu === "HTML")
                 {
@@ -830,6 +933,7 @@ class Navigation
                     {
                         filename+='.'+this.current_menu.toLowerCase();
                     }
+                    // Create a navigation button for the new file.
                     let input = this.add_nav_button(filename);
                     // Add functionallity to the button.
                     input.onclick = function()
@@ -849,11 +953,6 @@ class Navigation
                     this.enable_menu_of_kind("EDITOR");
                 }
             }
-            else
-            {
-                alert("There already is a file with this name, Try a different one.");
-            }
-            
         }.bind(this);
 
         // Bind the zoom buttons.
@@ -872,6 +971,20 @@ class Navigation
             }
         }.bind(this);
     }
+    // Check if a a file with the specified filename exists.
+    file_exists(filename)
+    {
+        // Check if the file already exist by trying to get the current index.
+        if((this.get_nav_item_index_by_filename(filename) == null) && (this.get_nav_item_index_by_filename(filename+"."+this.current_menu.toLowerCase()) == null))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
     // Changes the size of everything inside the extension when the zoom level is changed.
     set_zoom_factor(factor)
     {
@@ -1089,6 +1202,7 @@ class Navigation
                 this.menu_title_divider.style.display = "none";
                 break;
             case "EDITOR":
+                // Show the name of the language in the navigation bar.
                 this.menu_title_label.innerHTML = kind_to_language(filename_to_kind(this.editor.active_file));
                 this.active_checkbox.style.display = "inline";
                 this.active_label.style.display = "inline";
@@ -1096,6 +1210,11 @@ class Navigation
                 {
                     element.style.display = "block";
                 })
+                // Set the state of the filename editing to not editing.
+                this.change_filename_editing_div.style.display = "none";
+                this.change_filename_not_editing_div.style.display= "block";
+                this.change_filename_label.innerHTML = this.editor.active_file;
+                this.change_filename_textfield.value = this.editor.active_file;
                 
                 chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
                 {
