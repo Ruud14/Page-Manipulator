@@ -908,12 +908,8 @@ class Navigation
                     this.nav_items.slice(index,1);
                     // Remove the file from the editor.
                     this.editor.delete_current_file();
-                    // Make sure the reloads and the deleted file doesn't show up anymore.
-                    this.disable_all_menus();
-                    this.enable_menu_of_kind("MAIN");
                     show_message("File Deleted!");
                 }.bind(this))
-                
             }
         }.bind(this)
 
@@ -974,14 +970,28 @@ class Navigation
     // Check if a a file with the specified filename exists.
     file_exists(filename)
     {
-        // Check if the file already exist by trying to get the current index.
-        if((this.get_nav_item_index_by_filename(filename) == null) && (this.get_nav_item_index_by_filename(filename+"."+this.current_menu.toLowerCase()) == null))
+        let file_extension = "."+this.current_menu.toLowerCase();
+        if(filename.endsWith(file_extension))
         {
-            return false;
+            if(this.get_nav_item_index_by_filename(filename) == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
         else
         {
-            return true;
+            if(this.get_nav_item_index_by_filename(filename+file_extension) == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 
@@ -1205,7 +1215,7 @@ class Navigation
                 // Show the name of the language in the navigation bar.
                 this.menu_title_label.innerHTML = kind_to_language(filename_to_kind(this.editor.active_file));
                 this.active_checkbox.style.display = "inline";
-                this.active_label.style.display = "inline";
+                this.active_label.style.display = "inline-block";
                 this.editor_menu_items.forEach(function(element)
                 {
                     element.style.display = "block";

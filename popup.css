@@ -151,6 +151,8 @@ header{
 #change-filename-button
 {
     margin:0px;
+    width: 20px; 
+    height: 20px;
 }
 
 #enabled-sites-text-area
@@ -199,7 +201,18 @@ header{
     display:inline-block;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
+    color: white;
+}
+
+#active-label
+{
+    width : 100px;
+    overflow:hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 #info-text
 {
     position: absolute;
@@ -215,8 +228,15 @@ header{
     width: 130px;
     background-color: var(--button-color);
     clear:both; 
-    border-top: 1px solid #ff8800;
+    border-top: 1px solid var(--button-color);
     margin: 10px 5px 10px;
+}
+.editor-menu-division-line
+{
+    margin: 5px 5px 5px;
+    height: 0px;
+    border-bottom: 1px solid var(--button-color);
+    border-style: dashed;
 }
 
 footer a
