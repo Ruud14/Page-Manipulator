@@ -1,10 +1,14 @@
+
 load();
+
+// Bool that indicates whether the page is loaded.
 let page_loaded = false;
-// Arrays that consists of ['filename',element] pairs.
+// Arrays that consists of ['filename', element] pairs.
 let added_css = [];
 let added_js = [];
 // Array that consists of ['filename', element, position] pairs.
 let added_html = [];
+
 window.onload = function statup()
 {
     page_loaded = true;
@@ -12,9 +16,9 @@ window.onload = function statup()
     load();
 }
 
+// Function that processes all the retrieved data from storage.
 function load_data_from_storage(data)
 {
-    //populate the array.
     let url = location.href;
     let filenames = Array.from(Object.keys(data));
     let filedatas = Array.from(Object.values(data))
@@ -31,7 +35,7 @@ function load_data_from_storage(data)
         let kind = (filename.substring(filename.lastIndexOf(".") + 1, filename.length)).toUpperCase();
         let todo = 'change'+kind;
 
-        //Remove empty lines from active_websites
+        // Remove empty lines from active_websites
         while(active_websites.includes(""))
         {
             let index = active_websites.lastIndexOf("");
@@ -64,13 +68,14 @@ function load_data_from_storage(data)
             }
         }
 
+        // Check if the code should run on ALL pages.
         if(active_websites.includes("all"))
         {
             let req = {todo: todo, code: filetext, position:position, mode:mode, filename:filename, active:active, reload_on_remove:reload_on_remove}
             manipulate(req,false);
         }
 
-        // Check if the current website is in active_websites according to the mode.
+        // Check if the current website is in active_websites according to the recursive mode.
         if(mode === "recursive")
         {
             for(let site of active_websites)
@@ -83,6 +88,7 @@ function load_data_from_storage(data)
                 }
             }
         }
+        // Check if the current website is in active_websites according to the exact mode.
         else if(mode === "exact")
         {
             if(active_websites.includes(url) || active_websites.includes(url.slice(0,-1)))
@@ -94,6 +100,7 @@ function load_data_from_storage(data)
     }   
 }
 
+// Function that loads both the synced and local storage.
 function load()
 {
     // Load the synced data.
@@ -105,9 +112,9 @@ function load()
     chrome.storage.local.get(null, function(data) {
         load_data_from_storage(data);
     });
-
 }
-// checks if a file is active or not.
+
+// Checks if a file is active or not.
 function get_status(filename)
 {
     if(filename.endsWith(".css"))
@@ -160,9 +167,10 @@ function update_badge()
     }
 }
 
-// Remove a manipulation for the page.
+// Removes a manipulation for the page.
 function remove_manipulation(request)
 {
+    // Remove CSS element.
     if(request.todo==="removeCSS")
     {
         for(let element of added_css)
@@ -176,6 +184,7 @@ function remove_manipulation(request)
             }
         }
     }
+    // Remove HTML element.
     else if(request.todo === "removeHTML")
     {
         for(let element of added_html)
@@ -196,6 +205,7 @@ function remove_manipulation(request)
             }
         }
     }
+    // Remove JavaScript element.
     else if(request.todo === "removeJS")
     {
         for(let element of added_js)
@@ -220,6 +230,7 @@ function manipulate(request, update)
     {
         return;
     }
+    // Manipulate HTML.
     if(request.todo==="changeHTML" && (page_loaded||update))
     {
         // Check if the requested HTML element is alread injected into the page.
@@ -252,6 +263,7 @@ function manipulate(request, update)
                 }
             }
         })
+        // The requested HTML element hasn't been injected into this page before.
         if(found_elements.length === 0)
         {
             // Inject the new HTML element into the page if the HTML element wasn't alread present on the page.
@@ -275,9 +287,9 @@ function manipulate(request, update)
         }
         
     }
+    // Manipulate CSS
     else if(request.todo ==="changeCSS" && (!page_loaded || update))
     {
-        
         // Check if requested CSS has alread been injected.
         // If so change the css of the injection to the new code.
         let found_elements = [];
@@ -302,6 +314,7 @@ function manipulate(request, update)
             added_css.push(array_item);
         }
     }
+    // Manipulate JavaScript
     else if(request.todo ==="changeJS" && (page_loaded||update))
     {
         let found_elements = [];
@@ -331,6 +344,7 @@ function manipulate(request, update)
     }
 }
 
+
 function main()
 {
     var clickedEl = null;
@@ -341,7 +355,6 @@ function main()
         if(event.button === 2) { 
             let current_elem = event.target;
             let path = "";
-            
             while(current_elem.id === "")
             {
                 if(current_elem.className === "")
@@ -376,11 +389,10 @@ function main()
                 }
             }
             clickedEl = path;
-            
         }
     }, true);
     
-    // Add the listener for messages.
+    // Add the listener for incomming messages.
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if(request.todo === "getClickedEl") {
             navigator.clipboard.writeText(clickedEl);

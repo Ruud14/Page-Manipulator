@@ -1,7 +1,8 @@
 
-// Have the popup display off by default.
+// Have the badge display 'off' by default.
 chrome.browserAction.setBadgeText({text:"Off"});
-// Listen to requests.
+
+// Listen for requests.
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
     // Change the value of the badge.
@@ -11,33 +12,29 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
     }
 })
 
+// Context menu for copying the CSS path of an element on the page.
 let CopyCSSMenuItem = {
     "id": "copyCSSpath",
     "title": "Copy CSS path to clipboard",
     "contexts": ["selection","page"]
 };
-let InsertHTMLMenuItem = {
-    "id": "insertHTML",
-    "title": "insert HTML here",
-    "contexts": ["selection","page"]
-};
-chrome.contextMenus.create(CopyCSSMenuItem);
-//chrome.contextMenus.create(InsertHTMLMenuItem);
 
+// Create the contextmenu.
+chrome.contextMenus.create(CopyCSSMenuItem);
+
+// Add functionallity to the context menu.
 chrome.contextMenus.onClicked.addListener(function(clickdata)
 {
-
     if(clickdata.menuItemId=="copyCSSpath")
     {
         // Send message to content script to get the element of what was clicked on.
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-            //chrome.tabs.sendMessage(tabs[0].id, "getClickedEl", function(clickedEl) {});  
             chrome.tabs.sendMessage(tabs[0].id, {todo: "getClickedEl"});
         });
-        
     }
 })
 
+// Function that sends a message to the frontent that the active tap has changed.
 function sendActiveTabChangedMessage(tabId)
 {
     chrome.tabs.sendMessage(tabId, {todo: "activeTabChanged"});
