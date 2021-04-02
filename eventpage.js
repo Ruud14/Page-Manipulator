@@ -6,7 +6,7 @@ chrome.browserAction.setBadgeText({text:"Off"});
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
     // Change the value of the badge.
-    if(request.todo=="SetBadge")
+    if(request.todo == "SetBadge")
     {
         chrome.browserAction.setBadgeText({text:request.value});
     }
@@ -25,7 +25,7 @@ chrome.contextMenus.create(CopyCSSMenuItem);
 // Add functionallity to the context menu.
 chrome.contextMenus.onClicked.addListener(function(clickdata)
 {
-    if(clickdata.menuItemId=="copyCSSpath")
+    if(clickdata.menuItemId == "copyCSSpath")
     {
         // Send message to content script to get the element of what was clicked on.
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs){

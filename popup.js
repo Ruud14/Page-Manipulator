@@ -3,21 +3,22 @@ window.onload = function statup()
     // Enable to clear the storage.
     // chrome.storage.sync.clear();
     // chrome.storage.local.clear();
-    main();
+    // localStorage.clear()
+    // Create the navigation.
+    new Navigation();
 }
 
 // ---------------------------- General functions ----------------------------
 
 
 // Inserts code into the current site.
-function insert(todo,code,position,mode,filename)
+function insert(todo, code, position, mode, filename)
 // todo shoud be > changeHTML, changeCSS or changeJS
 {
     chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
     {
-        chrome.tabs.sendMessage(tabs[0].id, {todo: todo, code: code, position:position,mode:mode,filename:filename});
-    })
-    
+        chrome.tabs.sendMessage(tabs[0].id, {todo: todo, code: code, position:position, mode:mode, filename:filename});
+    });
 }
 
 // shows msg on the screen
@@ -26,7 +27,7 @@ function show_message(msg)
     let message_text = document.getElementById("message-text");
     message_text.textContent = msg;
     message_text.style.opacity = 1;
-    window.setTimeout(function(){ message_text.style.opacity = 0;},1000);
+    window.setTimeout(function(){ message_text.style.opacity = 0;}, 1000);
 }
 
 // Returns the filetype of the specified filename in the "FILEEXTENSION" format.
@@ -65,16 +66,13 @@ function communication_test(onFail, onSuccess, retryTimeMiliSeconds=500)
             if(chrome.runtime.lastError) {
                 if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
                     onFail();
-                    console.log("Boohoo");
                     setTimeout(function(){communication_test(onFail, onSuccess, retryTimeMiliSeconds)}, retryTimeMiliSeconds);
                 }
                 else{
-                    console.log("YEE");
                     onSuccess();
                 } 
             }
             else{
-                console.log("YEE2");
                 onSuccess();
             }
 
@@ -124,7 +122,7 @@ class Editor
             // Check if the maximum amount of open files isn't already reached.
             if(this.files.length < this.max_open_files)
             {
-                this.create_window(filename,text);
+                this.create_window(filename, text);
                 this.create_file_button(filename);
                 this.activate_file_by_name(filename);
             }
@@ -143,7 +141,7 @@ class Editor
         {
             if(element[0] === filename)
             {
-                let index = this.navigator.get_nav_item_index_by_filename(filename)
+                let index = this.navigator.get_nav_item_index_by_filename(filename);
                 this.navigator.nav_items[index].open = true;
                 this.editor.setSession(element[1]);
                 this.editor_element.style.display = "block";
@@ -164,7 +162,7 @@ class Editor
         Array.from(all_html_elements).forEach(function(element)
         {
             // Highlight the right button.
-            if(element.value===filename)
+            if(element.value === filename)
             {
                 element.style.opacity = 1;
                 all_close_html_elements[Array.from(all_html_elements).indexOf(element)].style.opacity = 1;
@@ -175,7 +173,7 @@ class Editor
                 element.style.opacity = 0.5;
                 all_close_html_elements[Array.from(all_html_elements).indexOf(element)].style.opacity = 0.5;
             }
-        })
+        });
         // Resize all open file html_elements to fit the window.
         this.resize_open_file_html_elements();
         
@@ -186,13 +184,13 @@ class Editor
     {
         let all_html_elements = document.getElementsByClassName("file-title-button");
         let editor_width_str = this.editor_element.style["min-width"];
-        let button_width = Math.round((parseInt(editor_width_str.substring(0, editor_width_str.length - 2))-20)/all_html_elements.length);
+        let button_width = Math.round((parseInt(editor_width_str.substring(0, editor_width_str.length - 2)) - 20)/all_html_elements.length);
         // Also take the with of the close html_elements into a count.
-        button_width = button_width-3*all_html_elements.length;
+        button_width = button_width - 3*all_html_elements.length;
         Array.from(all_html_elements).forEach(function(element)
         {
-            element.style.width = button_width+"px";
-        })
+            element.style.width = button_width + "px";
+        });
     }
 
     // Hides the editor and the open files.
@@ -206,21 +204,13 @@ class Editor
         //close all the files.
         Array.from(this.navigator.nav_items).forEach(function(element){
             element.open = false;
-        })
+        });
         //Delete the file html_elements.
-        Array.from(all_open_files).forEach(function(element)
-        {
+        Array.from(all_open_files).forEach(function(element){
             element.parentNode.removeChild(element);
-        })
+        });
         // Clear the files list.
         this.files = [];
-    }
-
-    // Reveals the editor element.
-    reveal()
-    {
-        // reveal the editor element.
-        this.editor_element.style.display = "block";
     }
 
     // Closes the editor of the file with the specified filename.
@@ -233,20 +223,22 @@ class Editor
         
         this.save_file_by_name(filename);
         // Delete the file button.
-        Array.from(all_open_files).forEach(function(element)
+        for(const element of Array.from(all_open_files))
         {
             if(element.childNodes[0].value === filename)
             {
                 element.parentNode.removeChild(element);
+                break;
             }
-        })
+        }
         
         // Remove the file from this.files.
-        for(let i=0; i<this.files.length;i++)
+        for(let i = 0; i<this.files.length; i++)
         {
             if(this.files[i][0] === filename)
             {
-                this.files.splice(i,1);
+                this.files.splice(i, 1);
+                break;
             }
         }
         // If you close the last open file, the editmenu will go away and be replaced with the main menu.
@@ -279,14 +271,13 @@ class Editor
         {
             this.close_file(filename);
         }.bind(this);
-        file_button.type="submit";
-        file_button.className="file-title-button";
-        file_button.value=filename;
+        file_button.type ="submit";
+        file_button.className ="file-title-button";
+        file_button.value =filename;
         file_button.onclick = function()
         {
-            this.activate_file_by_name(filename);
             this.save_current_file();
-            this.navigator.disable_all_menus();
+            this.activate_file_by_name(filename);
             this.navigator.enable_menu_of_kind("EDITOR");
         }.bind(this);
         li.appendChild(file_button);
@@ -297,15 +288,16 @@ class Editor
     }
 
     // Creates an editor window for the file with the specified name and text.
-    create_window(filename,text)
+    create_window(filename, text)
     {
         let new_session = new this.EditSession(text);
 
-        // Disable the info text on the left.
-        if(filename_to_kind(filename)==="HTML")
+        // Disable the info text on the left of the editor if it is an HTML file.
+        if(filename_to_kind(filename) === "HTML")
         {
             new_session.setUseWorker(false);
         }
+        // Set the editor to the correct language.
         if(filename.endsWith(".js"))
         {
             new_session.setMode("ace/mode/javascript");
@@ -318,16 +310,16 @@ class Editor
         {
             new_session.setMode("ace/mode/html");
         }
+
         // Bind the save_current_file function to changes in the editor.
-        new_session.on('change', function(delta) {
+        new_session.on("change", function(delta) {
             this.save_current_file();
             if(this.navigator.current_menu != "EDITOR")
             {
-                this.navigator.disable_all_menus();
                 this.navigator.enable_menu_of_kind("EDITOR");
             }
         }.bind(this));
-        this.files.push([filename,new_session]);
+        this.files.push([filename, new_session]);
     }
 
     // Returns the text of the current edit menu.
@@ -359,9 +351,8 @@ class Editor
     {
         let filename = this.active_file;
         this.close_file(filename);
-        chrome.storage.sync.remove(filename,function(){});
-        chrome.storage.local.remove(filename,function(){});
-        show_message("Deleted "+filename);
+        chrome.storage.sync.remove(filename, function(){});
+        chrome.storage.local.remove(filename, function(){});
     }
 
     // Change the filename of the currently active file.
@@ -371,7 +362,7 @@ class Editor
         // Change the filename in the editor.
         for(const [i, file] of this.files.entries())
         {
-            if(file[0]===old_filename)
+            if(file[0] === old_filename)
             {
                 this.files[i][0] = new_filename;
                 this.active_file = new_filename;
@@ -379,11 +370,11 @@ class Editor
             }
         }
         // Change the filename in the navigator.
-        for(let i=0; i<this.navigator.nav_items.length;i++)
+        for(let i = 0; i<this.navigator.nav_items.length; i++)
         {
-            if(this.navigator.nav_items[i].filename===old_filename)
+            if(this.navigator.nav_items[i].filename === old_filename)
             {
-                this.navigator.nav_items[i].filename=new_filename;
+                this.navigator.nav_items[i].filename = new_filename;
                 break;
             }
         }
@@ -393,7 +384,7 @@ class Editor
         // Put the new filebutton in the position of the old one and remove the old one.
         for(const element of Array.from(all_html_elements))
         {
-            if(element.value===old_filename)
+            if(element.value === old_filename)
             {
                 // Create new filebutton.
                 let new_file_button = this.create_file_button(new_filename);
@@ -404,13 +395,12 @@ class Editor
         }
 
         // Save the file in storage with a new name.
-        this.save_current_file();
+        this.save_file_by_name(new_filename);
         // Remove the old file from storage.
-        chrome.storage.sync.remove(old_filename,function(){});
-        chrome.storage.local.remove(old_filename,function(){});
+        chrome.storage.sync.remove(old_filename, function(){});
+        chrome.storage.local.remove(old_filename, function(){});
 
         this.resize_open_file_html_elements();
-        
     }
 
     // Save a file to storage using its name.
@@ -418,11 +408,11 @@ class Editor
     {
         let all_new_data = {};
         let current_file_data = {};
-        current_file_data.filename =filename;
+        current_file_data.filename = filename;
 
         for(let element of this.files)
         {
-            if(element[0]===filename)
+            if(element[0] === filename)
             {
                 let current_text = element[1].getValue();
                 current_file_data.text = current_text;
@@ -445,14 +435,14 @@ class Editor
         // Update the local storage otherwise.
         if (get_file_size(all_new_data) >=  this.max_synced_filesize_chars)
         {
-            chrome.storage.sync.remove(filename,function(){});
+            chrome.storage.sync.remove(filename, function(){});
             chrome.storage.local.set(all_new_data, function() {
                 show_message("Saved!");
             });
         }
         else
         {
-            chrome.storage.local.remove(filename,function(){});
+            chrome.storage.local.remove(filename, function(){});
             chrome.storage.sync.set(all_new_data, function() {
                 show_message("Saved!");
             });
@@ -492,14 +482,14 @@ class Editor
         // Update the local storage otherwise.
         if (get_file_size(all_new_data) >=  this.max_synced_filesize_chars)
         {
-            chrome.storage.sync.remove(current_file_name,function(){});
+            chrome.storage.sync.remove(current_file_name, function(){});
             chrome.storage.local.set(all_new_data, function() {
                 show_message("Saved!");
             });
         }
         else
         {
-            chrome.storage.local.remove(current_file_name,function(){});
+            chrome.storage.local.remove(current_file_name, function(){});
             chrome.storage.sync.set(all_new_data, function() {
                 show_message("Saved!");
             });
@@ -620,14 +610,20 @@ class Navigation
         this.main_menu_division_lines = document.getElementsByClassName("main-menu-division-line");
         this.editor_menu_division_lines = document.getElementsByClassName("editor-menu-division-line");
 
+        // The navigation creates the editor.
         this.editor = new Editor(this);
         this.current_menu = "MAIN";
 
         this.current_zoom_level = 0;
-        // Use the saved zoom level at startup.
+        // Use the saved zoom level at startup if there is one.
         if(localStorage["current_zoom_level"])
         {
             this.set_zoom_factor(parseInt(localStorage["current_zoom_level"]));
+        }
+        // Use default zoom level of 300% instead.
+        else
+        {
+            this.set_zoom_factor(200);
         }
 
         // Arrays that contain the items that are always present on that menu.
@@ -638,18 +634,18 @@ class Navigation
             this.project_support_label].concat(Array.from(this.main_menu_division_lines));
 
         this.editor_menu_items = [
-            this.back_div,this.try_button,this.active_websites_label,
-            this.enabled_sites_text_area,this.matching_pages_label,this.mode_selection,
+            this.back_div, this.try_button, this.active_websites_label,
+            this.enabled_sites_text_area, this.matching_pages_label, this.mode_selection,
             this.delete_button, this.filename_label, this.change_filename_not_editing_div, 
             this.change_filename_editing_div].concat(Array.from(this.editor_menu_division_lines));
 
         this.new_menu_items = [
-            this.make_button,this.filename_textfield,this.back_div,
+            this.make_button, this.filename_textfield, this.back_div,
             this.filename_input_label, this.info_text]; 
 
         // Array that contains all files present in the Navigator.
         // All elements should be of type 'File'.
-        this.nav_items =[];
+        this.nav_items = [];
 
         // Bind the right function to every html element.
         this.bind_html_elements();
@@ -658,7 +654,7 @@ class Navigation
         // Enable the 'ERROR' menu if this isn't the case.
         communication_test(
             function(){this.enable_menu_of_kind("ERROR")}.bind(this), //onFail
-            function(){this.enable_menu_of_kind("MAIN")}.bind(this));//onSuccess
+            function(){this.enable_menu_of_kind("MAIN")}.bind(this)); //onSuccess
         setTimeout(function() {this.load_open_files();}.bind(this), 100);
     }
     
@@ -669,7 +665,7 @@ class Navigation
         // Bind the button that changes the name of the current file.
         this.change_filename_button.onclick = function()
         {
-            this.change_filename_not_editing_div.style.display= "none";
+            this.change_filename_not_editing_div.style.display = "none";
             this.change_filename_editing_div.style.display = "block";
             this.change_filename_textfield.focus();
 
@@ -679,15 +675,15 @@ class Navigation
         this.cancel_filename_change_button.onclick = function()
         {
             this.change_filename_not_editing_div.style.display = "block";
-            this.change_filename_editing_div.style.display= "none";
+            this.change_filename_editing_div.style.display = "none";
         }.bind(this)
 
         // Bind the button that saves the new filename.
         this.save_filename_change_button.onclick = function()
         {
             let new_filename = this.change_filename_textfield.value;
-            let split_parts = this.editor.active_file.split(".")
-            let file_extension = split_parts[split_parts.length - 1]
+            let split_parts = this.editor.active_file.split(".");
+            let file_extension = split_parts[split_parts.length - 1];
 
             // Check if a file with the new filename already exists.
             if(this.file_exists(new_filename))
@@ -697,9 +693,9 @@ class Navigation
             else
             {
                 // Add the correct file extension if there isn't one already.
-                if(!new_filename.endsWith("."+file_extension))
+                if(!new_filename.endsWith("." + file_extension))
                 {
-                    new_filename+='.'+file_extension;
+                    new_filename += '.' + file_extension;
                 }
                 // Change the filename of the current file.
                 this.editor.change_current_file_name(new_filename);
@@ -710,13 +706,13 @@ class Navigation
         // Bind the info button on the main menu.
         this.info_button.onclick = function()
         {   
-            window.open("https://github.com/Ruud14/Page-Manipulator", '_blank').focus();
+            window.open("https://github.com/Ruud14/Page-Manipulator", "_blank").focus();
         }.bind(this);
 
         // Bind the bug report button on the main menu.
         this.bug_report_button.onclick = function()
         {   
-            window.open("https://github.com/Ruud14/Page-Manipulator/issues", '_blank').focus();
+            window.open("https://github.com/Ruud14/Page-Manipulator/issues", "_blank").focus();
         }.bind(this);
 
         // Bind the 'active' checkbox.
@@ -737,6 +733,7 @@ class Navigation
                         this.nav_items[index].active = this.active_checkbox.checked;
                         this.editor.save_current_file();
                     }
+                    break;
                 }
             }
         }.bind(this);
@@ -751,6 +748,7 @@ class Navigation
                     let index = this.nav_items.indexOf(element);
                     this.nav_items[index].position = this.position_selection.options[this.position_selection.selectedIndex].value;
                     this.editor.save_current_file();
+                    break;
                 }
             }
         }.bind(this);
@@ -769,6 +767,7 @@ class Navigation
                     let index = this.nav_items.indexOf(element);
                     this.nav_items[index].mode = this.mode_selection.options[this.mode_selection.selectedIndex].value;
                     this.editor.save_current_file();
+                    break;
                 }
             }
         }.bind(this);
@@ -787,6 +786,7 @@ class Navigation
                     let index = this.nav_items.indexOf(element);
                     this.nav_items[index].active_websites = this.enabled_sites_text_area.value;
                     this.editor.save_current_file();
+                    break;
                 }
             }
         }.bind(this);
@@ -800,12 +800,13 @@ class Navigation
                 {
                     let index = this.nav_items.indexOf(element);
                     this.nav_items[index].active_websites = this.enabled_sites_text_area.value;
-                    if(this.enabled_sites_text_area.value.replaceAll(/\s/g,"") === "" && this.active_checkbox.checked === true)
+                    if(this.enabled_sites_text_area.value.replaceAll(/\s/g, "") === "" && this.active_checkbox.checked === true)
                     {
                         this.nav_items[index].active = false;
                         this.active_checkbox.checked = false;
                     }
                     this.editor.save_current_file();
+                    break;
                 }
             }
         }.bind(this)
@@ -841,7 +842,7 @@ class Navigation
                 this.editor.save_current_file();
                 let kind = filename_to_kind(filename);
                 // Remove the manipulation first.
-                chrome.tabs.sendMessage(tabs[0].id, {todo:"remove"+kind, value: filename});
+                chrome.tabs.sendMessage(tabs[0].id, {todo:"remove" + kind, value: filename});
                 if(!this.active_checkbox.checked)
                 {
                     this.remove_try_button.style.display = "none";
@@ -849,8 +850,8 @@ class Navigation
                 }
                  // Reload the page.
                 chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
-            }.bind(this))
-        }.bind(this)
+            }.bind(this));
+        }.bind(this);
 
         // Bind the back button.
         this.back_button.onclick = function() 
@@ -875,12 +876,12 @@ class Navigation
             let current_file_name = this.editor.active_file;
             let current_text = this.editor.get_current_text();
             let position = this.position_selection.options[this.position_selection.selectedIndex].value;
-            let todo = "change"+this.editor.get_current_filetype();
+            let todo = "change" + this.editor.get_current_filetype();
             let mode = this.mode_selection.options[this.mode_selection.selectedIndex].value;
             this.remove_try_button.style.display = "block";
-            this.try_button.value="Update Manip.";
+            this.try_button.value = "Update Manip.";
             show_message("Page Manipulated");
-            insert(todo,current_text,position,mode,current_file_name);
+            insert(todo, current_text, position, mode, current_file_name);
 
         }.bind(this);
 
@@ -893,14 +894,14 @@ class Navigation
             
             // Change the buttons.
             this.remove_try_button.style.display = "none";
-            this.try_button.value="Manipulate";
+            this.try_button.value ="Manipulate";
 
             // Send remove message to backend.
             chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
-                {
-                    let kind = filename_to_kind(this.editor.active_file);
-                    chrome.tabs.sendMessage(tabs[0].id, {todo:"remove"+kind, value: this.editor.active_file});
-                }.bind(this))
+            {
+                let kind = filename_to_kind(this.editor.active_file);
+                chrome.tabs.sendMessage(tabs[0].id, {todo:"remove" + kind, value: this.editor.active_file});
+            }.bind(this));
             
             this.editor.save_current_file();
 
@@ -920,11 +921,12 @@ class Navigation
                         });
                         break;
                     }
+                    break;
                 }
             }
             
             show_message("Removed Manipulation");
-        }.bind(this)
+        }.bind(this);
 
         // Bind the checkbox that determines if the page should be reloaded after removing a manipulation.
         this.reload_on_remove_checkbox.onchange = function(){
@@ -935,30 +937,47 @@ class Navigation
                     let index = this.nav_items.indexOf(element);
                     this.nav_items[index].reload_on_remove = this.reload_on_remove_checkbox.checked;
                     this.editor.save_current_file();
+                    break;
                 }
             }
-        }.bind(this)
+        }.bind(this);
 
         // Bind the button that removes the current file from storage.
         this.delete_button.onclick = function()
         {
             // Make sure the user didn't press 'delete' by accident.
-            if(confirm("Are you sure you want to delete "+this.editor.active_file+"?"))
+            if(confirm("Are you sure you want to delete " + this.editor.active_file + "?"))
             {
                 chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
                 {
                     // Remove the manipulation.
                     let kind = filename_to_kind(this.editor.active_file);
-                    chrome.tabs.sendMessage(tabs[0].id, {todo:"remove"+kind, value: this.editor.active_file});
-                    // Removes the file-button form the array.
-                    let index= this.get_nav_item_index_by_filename(this.editor.active_file);
-                    this.nav_items.slice(index,1);
+                    chrome.tabs.sendMessage(tabs[0].id, {todo:"remove" + kind, value: this.editor.active_file});
+                    
+                    let index = this.get_nav_item_index_by_filename(this.editor.active_file);
                     // Remove the file from the editor.
                     this.editor.delete_current_file();
+                    // Removes the file form the nav_items array.
+                    if(this.nav_items.length === 1)
+                    {
+                        this.nav_items = [];
+                    }
+                    else{
+                        this.nav_items.slice(index, 1);
+                    }
+                    // Enable the right menu after deleting.
+                    if(this.editor.files.length >= 1)
+                    {
+                        this.enable_menu_of_kind("EDITOR");
+                    }
+                    else
+                    {
+                        this.enable_menu_of_kind("MAIN");
+                    }
                     show_message("File Deleted!");
-                }.bind(this))
+                }.bind(this));
             }
-        }.bind(this)
+        }.bind(this);
 
         // Bind the button that confirms the creation of a new file.
         this.make_button.onclick = function()
@@ -974,22 +993,22 @@ class Navigation
                 if(this.current_menu === "JS" || this.current_menu === "CSS" || this.current_menu === "HTML")
                 {
                     // Add the correct file extension if there isn't one already.
-                    if(!filename.endsWith("."+this.current_menu.toLowerCase()))
+                    if(!filename.endsWith("." + this.current_menu.toLowerCase()))
                     {
-                        filename+='.'+this.current_menu.toLowerCase();
+                        filename += '.' + this.current_menu.toLowerCase();
                     }
                     // Create a navigation button for the new file.
                     let input = this.add_nav_button(filename);
                     // Add functionallity to the button.
                     input.onclick = function()
                     {
-                        this.editor.open_file(filename,"");
+                        this.editor.open_file(filename, "");
                         this.enable_menu_of_kind("EDITOR");
                     }.bind(this);
-                    let new_nav_item = new File(input, filename,"","","top",true,false,true,true);
+                    let new_nav_item = new File(input, filename, "", "", "top", true, false, true, true);
                     this.nav_items.push(new_nav_item);
                     
-                    this.editor.open_file(filename,"");
+                    this.editor.open_file(filename, "");
                     this.enabled_sites_text_area.value = "";
                     this.editor.save_current_file();
                     this.enable_menu_of_kind("EDITOR");
@@ -1002,7 +1021,7 @@ class Navigation
         {
             if(this.current_zoom_level > 0)
             {
-                this.set_zoom_factor(this.current_zoom_level-50);
+                this.set_zoom_factor(this.current_zoom_level - 50);
             }
         }.bind(this);
 
@@ -1011,7 +1030,7 @@ class Navigation
         {
             if(this.current_zoom_level < 250)
             {
-                this.set_zoom_factor(this.current_zoom_level+50);
+                this.set_zoom_factor(this.current_zoom_level + 50);
             }
         }.bind(this);
     }
@@ -1019,7 +1038,7 @@ class Navigation
     // Check if a a file with the specified filename exists.
     file_exists(filename)
     {
-        let file_extension = "."+this.current_menu.toLowerCase();
+        let file_extension = "." + this.current_menu.toLowerCase();
         // Check if the filename already contains the right file extension.
         if(filename.endsWith(file_extension))
         {
@@ -1036,7 +1055,7 @@ class Navigation
         else
         {
             // Check if there alreay is a file with the same name.
-            if(this.get_nav_item_index_by_filename(filename+file_extension) == null)
+            if(this.get_nav_item_index_by_filename(filename + file_extension) == null)
             {
                 return false;
             }
@@ -1048,6 +1067,7 @@ class Navigation
     }
 
     // Changes the size of everything inside the extension when the zoom level is changed.
+    // The factor is the percentage-100 so 300% would be factor 200. 
     set_zoom_factor(factor)
     {
         if(factor >= 0)
@@ -1059,12 +1079,12 @@ class Navigation
             let editor_width = Math.round(420 + this.current_zoom_level*(2/3));
             let editor_height = Math.round(230 + this.current_zoom_level);
             let nav_bar_height = Math.round(250 + this.current_zoom_level);
-            document.body.style["min-width"] = body_width.toString()+"px";
-            document.body.style["min-height"] = body_height.toString()+"px";
-            this.editor.editor_element.style["min-width"] = editor_width.toString()+"px";
-            this.editor.editor_element.style["min-height"] = editor_height.toString()+"px";
+            document.body.style["min-width"] = body_width.toString() + "px";
+            document.body.style["min-height"] = body_height.toString() + "px";
+            this.editor.editor_element.style["min-width"] = editor_width.toString() + "px";
+            this.editor.editor_element.style["min-height"] = editor_height.toString() + "px";
             this.editor.editor.resize();
-            this.navbar.style["min-height"] = nav_bar_height.toString()+"px";
+            this.navbar.style["min-height"] = nav_bar_height.toString() + "px";
             this.zoom_percentage_label.innerHTML = (this.current_zoom_level+100).toString() + " %";
         }
         // Resize the html_elements of all open files to fit the size of the extension window.
@@ -1076,12 +1096,12 @@ class Navigation
     {
         let kind = filename_to_kind(filename);
         // make the html element for the File object.
-        if(kind === "JS" || kind==="CSS" || kind==="HTML")
+        if(kind === "JS" || kind === "CSS" || kind === "HTML")
         {
-            let input = document.createElement('input');
-            input.type = 'submit';
+            let input = document.createElement("input");
+            input.type = "submit";
             input.value = filename;
-            input.className = 'nav-button saved-'+kind.toLowerCase()+'-nav-button'
+            input.className = "nav-button saved-" + kind.toLowerCase() + "-nav-button";
             return input;
         }
     }
@@ -1095,8 +1115,8 @@ class Navigation
             this.nav_items = [];
             // Populate nav_items.
             let filenames = Array.from(Object.keys(data));
-            let filedatas = Array.from(Object.values(data))
-            for(let i =0;i<filenames.length;i++)
+            let filedatas = Array.from(Object.values(data));
+            for(let i = 0; i<filenames.length; i++)
             {
                 let file_data = filedatas[i];
                 let active_websites = file_data["active_websites"];
@@ -1113,13 +1133,13 @@ class Navigation
                 // Add functionallity to the navigation button.
                 input.onclick = function()
                 {
-                    this.editor.open_file(filename,filetext);
+                    this.editor.open_file(filename, filetext);
                     this.editor.save_current_file();
                     this.disable_all_menus();
                     this.enable_menu_of_kind("EDITOR");
                 }.bind(this);
                 
-                let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,reload_on_remove,open,last);
+                let nav_item = new File(input, filename, filetext, active_websites, position, mode, active, reload_on_remove, open, last);
                 this.nav_items.push(nav_item);
             }
 
@@ -1128,8 +1148,8 @@ class Navigation
 
                 // Populate nav_items
                 let filenames = Array.from(Object.keys(data));
-                let filedatas = Array.from(Object.values(data))
-                for(let i =0;i<filenames.length;i++)
+                let filedatas = Array.from(Object.values(data));
+                for(let i = 0; i<filenames.length; i++)
                 {
                     let file_data = filedatas[i];
                     let active_websites = file_data["active_websites"];
@@ -1146,13 +1166,13 @@ class Navigation
                     // Add functionallity to the navigation button.
                     input.onclick = function()
                     {
-                        this.editor.open_file(filename,filetext);
+                        this.editor.open_file(filename, filetext);
                         this.editor.save_current_file();
                         this.disable_all_menus();
                         this.enable_menu_of_kind("EDITOR");
                     }.bind(this);
                    
-                    let nav_item = new File(input, filename,filetext,active_websites,position,mode,active,reload_on_remove,open,last);
+                    let nav_item = new File(input, filename, filetext, active_websites, position, mode, active, reload_on_remove, open, last);
                     this.nav_items.push(nav_item);
                 }
             }.bind(this));
@@ -1163,9 +1183,9 @@ class Navigation
     // Get the index of a file in 'this.nav_items'.
     get_nav_item_index_by_filename(filename)
     {
-        for(let i=0; i<this.nav_items.length;i++)
+        for(let i=0; i<this.nav_items.length; i++)
         {
-            if(this.nav_items[i].filename===filename)
+            if(this.nav_items[i].filename === filename)
             {
                 return i;
             }
@@ -1177,9 +1197,9 @@ class Navigation
     reload_nav_buttons()
     {
         // Clear the ul's.
-        let all_js_file_html_elements = Array.from(document.getElementsByClassName('saved-js-nav-button'));
-        let all_css_file_html_elements =  Array.from(document.getElementsByClassName('saved-css-nav-button'));
-        let all_html_file_html_elements =  Array.from(document.getElementsByClassName('saved-html-nav-button'));
+        let all_js_file_html_elements = Array.from(document.getElementsByClassName("saved-js-nav-button"));
+        let all_css_file_html_elements =  Array.from(document.getElementsByClassName("saved-css-nav-button"));
+        let all_html_file_html_elements =  Array.from(document.getElementsByClassName("saved-html-nav-button"));
         let all_file_html_elements = all_js_file_html_elements.concat(all_css_file_html_elements).concat(all_html_file_html_elements);
         if(all_file_html_elements)
         {
@@ -1192,7 +1212,7 @@ class Navigation
         // Populate the navbar again.
         this.nav_items.forEach(function(element)
         {
-            let li = document.createElement('li');
+            let li = document.createElement("li");
             // Make the button greyed out when the file.active is set to false.
             if(element.active)
             {
@@ -1216,7 +1236,7 @@ class Navigation
             // Open all files that were open before.
             if(element.open && (this.editor.files.length < this.editor.max_open_files))
             {
-                this.editor.open_file(element.filename,element.text);
+                this.editor.open_file(element.filename, element.text);
                 this.enable_menu_of_kind("EDITOR");
                 if(element.last)
                 {
@@ -1249,11 +1269,11 @@ class Navigation
             case "CSS":
             case "HTML":
                 this.back_div.style.display = "block";
-                let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
+                let all_elements = document.getElementsByClassName("saved-" + kind.toLowerCase() + "-nav-button");
                 Array.from(all_elements).forEach(function(element)
                 {
                     element.style.display = "block";
-                })
+                });
                 this.new_button.style.display = "block";
                 this.info_text.style.display = "block";
                 // Change the menu tile label.
@@ -1264,7 +1284,7 @@ class Navigation
                 this.main_nav_items.forEach(function(element)
                 {
                     element.style.display = "block";
-                })
+                });
                 break;
             // This menu is shown whenever the extension is opened on a page that can't be manipulated.
             case "ERROR":
@@ -1281,10 +1301,10 @@ class Navigation
                 this.editor_menu_items.forEach(function(element)
                 {
                     element.style.display = "block";
-                })
+                });
                 // Set the state of the filename editing to not editing.
                 this.change_filename_editing_div.style.display = "none";
-                this.change_filename_not_editing_div.style.display= "block";
+                this.change_filename_not_editing_div.style.display = "block";
                 this.change_filename_label.innerHTML = this.editor.active_file;
                 this.change_filename_textfield.value = this.editor.active_file;
                 
@@ -1295,10 +1315,10 @@ class Navigation
                         if(response != null)
                         {
                             // If the current page has been manipulated, change the 'manipulate' button to 'Update manip.'
-                            if(response.response===true)
+                            if(response.response === true)
                             {
                                 this.remove_try_button.style.display = "block";
-                                this.try_button.value = "Update Manip."
+                                this.try_button.value = "Update Manip.";
                             }
                         }
                         else
@@ -1313,8 +1333,8 @@ class Navigation
                                 } 
                             }
                         }
-                    }.bind(this))
-                }.bind(this))
+                    }.bind(this));
+                }.bind(this));
 
                 // Only display the position option when html.
                 if(this.editor.active_file.endsWith(".html"))
@@ -1325,13 +1345,12 @@ class Navigation
 
                 // Add the active websites to the enabled_sites_text_area.
                 let index = this.get_nav_item_index_by_filename(this.editor.active_file);
-
                 // Change the settings to the correct settings for the current file.
                 this.active_checkbox.checked = this.nav_items[index].active;
                 this.reload_on_remove_checkbox.checked = this.nav_items[index].reload_on_remove;
                 this.enabled_sites_text_area.value = this.nav_items[index].active_websites;
                 let positoin_options = this.position_selection.options;
-                for(let i=0;i<positoin_options.length;i++)
+                for(let i = 0; i<positoin_options.length; i++)
                 {
                     if(positoin_options[i].value === String(this.nav_items[index].position).toLowerCase())
                     {
@@ -1340,7 +1359,7 @@ class Navigation
                     }
                 }
                 let mode_options = this.mode_selection.options;
-                for(let i=0;i<mode_options.length;i++)
+                for(let i = 0; i<mode_options.length; i++)
                 {
                     if(this.nav_items[index].mode != null)
                     {
@@ -1378,7 +1397,7 @@ class Navigation
             case "CSS":
             case "HTML":
                 this.back_div.style.display = "none";
-                let all_elements = document.getElementsByClassName('saved-'+kind.toLowerCase()+'-nav-button');
+                let all_elements = document.getElementsByClassName("saved-" + kind.toLowerCase() + "-nav-button");
                 Array.from(all_elements).forEach(function(element)
                 {
                     element.style.display = "none";
@@ -1393,7 +1412,6 @@ class Navigation
                 break;
             case "ERROR":
                 this.error_text.style.display = "none";
-                this.editor.reveal();
                 this.menu_title_divider.style.display = "block";
                 break;
             case "EDITOR":
@@ -1408,7 +1426,7 @@ class Navigation
                 this.position_selection.style.display = "none";
                 this.position_label.style.display = "none";
                 this.remove_try_button.style.display = "none";
-                this.try_button.value="Manipulate";
+                this.try_button.value = "Manipulate";
                 break;
             case "NEW":
                 this.new_menu_items.forEach(function(element)
@@ -1430,10 +1448,4 @@ class Navigation
         this.disable_menu_of_kind("NEW");
         this.disable_menu_of_kind("ERROR");
     }
-}
-
-// Function to initiate the extension.
-function main()
-{
-    let navigation = new Navigation();
 }
