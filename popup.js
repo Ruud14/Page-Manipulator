@@ -265,7 +265,7 @@ class Editor
         let file_button = document.createElement("input");
         let close_button = document.createElement("a");
         li.className = "open-files-list-item";
-        close_button.innerHTML = "x";
+        close_button.innerText = "x";
         close_button.className = "close-button"
         close_button.onclick = function()
         {
@@ -276,9 +276,12 @@ class Editor
         file_button.value =filename;
         file_button.onclick = function()
         {
+            // First save the old file.
             this.save_current_file();
             this.activate_file_by_name(filename);
             this.navigator.enable_menu_of_kind("EDITOR");
+            // Save the new file.
+            this.save_current_file();
         }.bind(this);
         li.appendChild(file_button);
         li.appendChild(close_button);
@@ -1085,7 +1088,7 @@ class Navigation
             this.editor.editor_element.style["min-height"] = editor_height.toString() + "px";
             this.editor.editor.resize();
             this.navbar.style["min-height"] = nav_bar_height.toString() + "px";
-            this.zoom_percentage_label.innerHTML = (this.current_zoom_level+100).toString() + " %";
+            this.zoom_percentage_label.innerText = (this.current_zoom_level+100).toString() + " %";
         }
         // Resize the html_elements of all open files to fit the size of the extension window.
         this.editor.resize_open_file_html_elements();
@@ -1277,10 +1280,10 @@ class Navigation
                 this.new_button.style.display = "block";
                 this.info_text.style.display = "block";
                 // Change the menu tile label.
-                this.menu_title_label.innerHTML = kind_to_language(kind);
+                this.menu_title_label.innerText = kind_to_language(kind);
                 break;
             case "MAIN":
-                this.menu_title_label.innerHTML = "Main Menu";
+                this.menu_title_label.innerText = "Main Menu";
                 this.main_nav_items.forEach(function(element)
                 {
                     element.style.display = "block";
@@ -1289,13 +1292,13 @@ class Navigation
             // This menu is shown whenever the extension is opened on a page that can't be manipulated.
             case "ERROR":
                 this.editor.hide();
-                this.menu_title_label.innerHTML = "";
+                this.menu_title_label.innerText = "";
                 this.error_text.style.display = "block";
                 this.menu_title_divider.style.display = "none";
                 break;
             case "EDITOR":
                 // Show the name of the language in the navigation bar.
-                this.menu_title_label.innerHTML = kind_to_language(filename_to_kind(this.editor.active_file));
+                this.menu_title_label.innerText = kind_to_language(filename_to_kind(this.editor.active_file));
                 this.active_checkbox.style.display = "inline";
                 this.active_label.style.display = "inline-block";
                 this.editor_menu_items.forEach(function(element)
@@ -1305,7 +1308,7 @@ class Navigation
                 // Set the state of the filename editing to not editing.
                 this.change_filename_editing_div.style.display = "none";
                 this.change_filename_not_editing_div.style.display = "block";
-                this.change_filename_label.innerHTML = this.editor.active_file;
+                this.change_filename_label.innerText = this.editor.active_file;
                 this.change_filename_textfield.value = this.editor.active_file;
                 
                 chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
@@ -1373,7 +1376,7 @@ class Navigation
                 
                 break;
             case "NEW":
-                this.menu_title_label.innerHTML = "New File";
+                this.menu_title_label.innerText = "New File";
                 this.new_menu_items.forEach(function(element)
                 {
                     element.style.display = "block";
