@@ -656,8 +656,12 @@ class Navigation
         // Test if communication with the backend is possible.
         // Enable the 'ERROR' menu if this isn't the case.
         communication_test(
-            function(){this.enable_menu_of_kind("ERROR")}.bind(this), //onFail
-            function(){this.enable_menu_of_kind("MAIN")}.bind(this)); //onSuccess
+            function(){this.enable_menu_of_kind("ERROR");}.bind(this), //onFail
+            function()
+            {
+                this.enable_menu_of_kind("MAIN");
+                this.load_open_files();
+            }.bind(this)); //onSuccess
         setTimeout(function() {this.load_open_files();}.bind(this), 100);
     }
     
@@ -1330,8 +1334,11 @@ class Navigation
                             if(chrome.runtime.lastError) {
                                 if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
                                     communication_test(
-                                        function(){this.enable_menu_of_kind("ERROR")}.bind(this), //onFail
-                                        function(){this.enable_menu_of_kind("MAIN")}.bind(this)); //onSuccess
+                                        function(){this.enable_menu_of_kind("ERROR");}.bind(this), //onFail
+                                        function(){
+                                            this.enable_menu_of_kind("MAIN");
+                                            this.load_open_files();
+                                        }.bind(this)); //onSuccess
                                     return;
                                 } 
                             }
