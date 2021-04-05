@@ -250,10 +250,17 @@ class Editor
         }
         else
         {
+            let file_to_be_saved_after_closing = this.files[0][0];
+            // Open the currently open file if the closed file is not the open file.
+            if(this.active_file != filename)
+            {   
+                file_to_be_saved_after_closing = this.active_file;
+            }
             // Open an other file thats open.
-            this.activate_file_by_name(this.files[0][0]);
+            this.activate_file_by_name(file_to_be_saved_after_closing);
             this.navigator.disable_all_menus();
             this.navigator.enable_menu_of_kind("EDITOR");
+            this.save_current_file();
         }
     }
 
