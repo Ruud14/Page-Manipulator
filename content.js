@@ -114,6 +114,8 @@ function load_data_from_storage_and_manipulate(data)
             if (is_cross_origin_http_request_required(request))
             {
                 manipulate(create_jquery_injection_request());
+                manipulate(create_jquery_ui_injection_request());
+                manipulate(create_jquery_easing_injection_request());
                 manipulate(create_cross_origin_http_request_injection_request());
             }
 
@@ -456,7 +458,7 @@ function main()
 
 function is_cross_origin_http_request_required(request)
 {
-    if (request.todo === 'changeJS')
+    if (request.todo === 'changeJS' && request.active === true)
     {
         if (request.code.includes("CrossOriginHttpRequest"))
         {
@@ -473,8 +475,34 @@ function create_jquery_injection_request()
 {
     let request = {
         todo: "changeJS", 
-        code: 'https://code.jquery.com/jquery-3.6.0.min.js', 
+        code: 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js', 
         filename: '_jquery_3.6.0_', 
+        active: true,
+        is_code_as_src: true
+    };
+
+    return request;
+}
+
+function create_jquery_ui_injection_request()
+{
+    let request = {
+        todo: "changeJS", 
+        code: 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js', 
+        filename: '_jquery_ui_3.6.0_', 
+        active: true,
+        is_code_as_src: true
+    };
+
+    return request;
+}
+
+function create_jquery_easing_injection_request()
+{
+    let request = {
+        todo: "changeJS", 
+        code: 'https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js', 
+        filename: '_jquery_easing_3.6.0_', 
         active: true,
         is_code_as_src: true
     };
