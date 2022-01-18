@@ -1,5 +1,5 @@
 // Load() needs to be run both before, and after the page is loaded.
-// Otherwise the original page is shown bofore CSS manipulations.
+// Otherwise the original page is shown before CSS manipulations.
 // This doesn't add two manipulations that are the same 
 // because the 'manipulate' function checks if the manipulation is already present;
 load();
@@ -82,20 +82,21 @@ function load_data_from_storage_and_manipulate(data)
             active:active, 
             reload_on_remove:reload_on_remove};
 
+        let is_request_valid = false;
+
         // Check if the code should run on ALL pages.
         if(active_websites.includes("all"))
         {
-            manipulate(request, false);
+            is_request_valid = true;
         }
-
         // Check if the current website is in active_websites according to the recursive mode.
-        if(mode === "recursive")
+        else if(mode === "recursive")
         {
             for(let site of active_websites)
             {
                 if(url.startsWith(site))
                 {
-                    manipulate(request, false);
+                    is_request_valid = true;
                     break;
                 }
             }
@@ -105,10 +106,18 @@ function load_data_from_storage_and_manipulate(data)
         {
             if(active_websites.includes(url) || active_websites.includes(url.slice(0, -1)))
             {
-                manipulate(request, false);
+                is_request_valid = true;
             }
         }
-    }   
+
+        if (is_request_valid) {
+            if (is_cross_origin_http_request_required(request))
+            {
+                manipulate(create_cross_origin_http_request_injection_request());
+            }
+            manipulate(request);
+        }
+    }
 }
 
 // Function that loads both the synced and local storage.
@@ -234,7 +243,7 @@ function remove_manipulation(request)
 
 
 // Manipulates the page.
-function manipulate(request, update)
+function manipulate(request, update = false)
 {
     // Return if the requested manipulation is not set to be active.
     if(request.active === false && !update)
@@ -433,3 +442,73 @@ function main()
         }
     });
 }
+
+function is_cross_origin_http_request_required(request)
+{
+    if (request.todo === 'changeJS' && request.active === true)
+    {
+        if (request.code.includes("CrossOriginHttpRequest"))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
+function create_cross_origin_http_request_injection_request()
+{
+    let request = {
+        todo: "changeJS", 
+        code: cross_origin_http_request_implementation,
+        filename: '_cross_origin_http_request_', 
+        active: true
+    };
+
+    return request;
+}
+
+const cross_origin_http_request_implementation = `
+var CrossOriginHttpRequest = (function() {
+    var mediator = document.body;
+    var ajaxDict = {};
+    var getAvailableTag = function() {
+        var tag = Math.floor(Math.random() * 100);
+        if (!ajaxDict[tag]) {
+            return tag;
+        } else {
+            return getAvailableTag();
+        }
+    }
+    mediator.addEventListener("bridgeResponse", function(e) {
+        var req = ajaxDict[e.detail.tag];
+        ajaxDict[e.detail.tag] = false;
+        var res = e.detail.res;
+        if (res.isSucc) {
+            req.success && req.success(res.data);
+        } else {
+            req.error && req.error(res.xhr, res.type);
+        }
+    }, false);
+    var AJAX = function(req) {
+        req._tag = getAvailableTag();
+        ajaxDict[req._tag] = req;
+        var _req = {
+            type: req.type ? req.type : 'GET',
+            url: req.url,
+            data: req.data ? req.data : {},
+            timeout: req.timeout ? req.timeout : 5000,
+            dataType: req.dataType ? req.dataType : 'json',
+        };
+        var event = new CustomEvent("bridgeRequest", {
+            detail: {
+                req: _req,
+                tag: req._tag
+            }
+        });
+        mediator.dispatchEvent(event);
+    };
+    return AJAX;
+})();`;

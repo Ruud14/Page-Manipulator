@@ -18,8 +18,7 @@
   
     "background":
     {
-        "scripts": ["eventpage.js"],
-        "persistent": false
+        "scripts": ["libs/jquery.js", "eventpage.js"]
     },
     "content_scripts":
     [
@@ -29,6 +28,11 @@
             "js": ["content.js"],
             "css": ["content.css"],
             "match_about_blank": true
+        },
+        {
+            "run_at": "document_idle",
+            "matches":["<all_urls>"],
+            "js": ["content_idle.js"]
         } 
     ],
     "permissions": [
