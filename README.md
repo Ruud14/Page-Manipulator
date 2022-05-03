@@ -84,8 +84,6 @@ Or follow the steps below.
     - Files that contain less than 8000 characters are synced across your google account.
     - Files that contain 8000 or more characters are stored locally.
     
-**Extra features** (forked repos)
-- [Allow injected scripts to make cross origin http requests.](https://github.com/VanDng/Page-Manipulator)
 
 
 **Fun use cases**:
