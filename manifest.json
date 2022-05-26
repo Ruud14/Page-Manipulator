@@ -1,7 +1,7 @@
 {
     "manifest_version":2,
     "name":"Page Manipulator",
-    "version":"0.5.1",
+    "version":"0.5.2",
     "description":"Inject HTML, CSS or JavaScript into any web-page. The changes you make are applied everytime you visit the specified website(s).",
     "icons":
     {
@@ -32,7 +32,6 @@
         } 
     ],
     "permissions": [
-        "tabs",
         "storage",
         "activeTab",
         "contextMenus",
