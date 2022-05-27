@@ -1,8 +1,6 @@
 
 # Page Manipulator.
 
-# (UPDATE MAY 26TH: The Extension is currently hidden from the chrome store because of a claim. I have rolled out an update which fixes this, but it is currently waiting to be approved 🙏. Let's hope we're up and running again soon.)
-
 WARNING: This extension works on most sites, but there are some exceptions!
 If you'd like to see any specific improvements or found any bugs, let me know [here](https://github.com/Ruud14/Page-Manipulator/issues).
 
