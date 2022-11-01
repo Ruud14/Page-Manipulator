@@ -63,14 +63,9 @@ function communication_test(onFail, onSuccess, retryTimeMiliSeconds=500)
     {
         chrome.tabs.sendMessage(tabs[0].id, {todo:"comTest"}, function(response) {
             // The extension is opened on a page that it can't manipulate.
-            if(chrome.runtime.lastError) {
-                if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
-                    onFail();
-                    setTimeout(function(){communication_test(onFail, onSuccess, retryTimeMiliSeconds)}, retryTimeMiliSeconds);
-                }
-                else{
-                    onSuccess();
-                } 
+            if(chrome.runtime.lastError && chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist.") {
+                onFail();
+                setTimeout(function(){communication_test(onFail, onSuccess, retryTimeMiliSeconds)}, retryTimeMiliSeconds);
             }
             else{
                 onSuccess();
