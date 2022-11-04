@@ -13,7 +13,7 @@ window.onload = function statup()
 
 // Inserts code into the current site.
 function insert(todo, code, position, mode, filename)
-// todo shoud be > changeHTML, changeCSS or changeJS
+// todo should be > changeHTML, changeCSS or changeJS
 {
     chrome.tabs.query({active:true, currentWindow:true}, function(tabs)
     {
@@ -63,14 +63,9 @@ function communication_test(onFail, onSuccess, retryTimeMiliSeconds=500)
     {
         chrome.tabs.sendMessage(tabs[0].id, {todo:"comTest"}, function(response) {
             // The extension is opened on a page that it can't manipulate.
-            if(chrome.runtime.lastError) {
-                if(chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist."){
-                    onFail();
-                    setTimeout(function(){communication_test(onFail, onSuccess, retryTimeMiliSeconds)}, retryTimeMiliSeconds);
-                }
-                else{
-                    onSuccess();
-                } 
+            if(chrome.runtime.lastError && chrome.runtime.lastError.message === "Could not establish connection. Receiving end does not exist.") {
+                onFail();
+                setTimeout(function(){communication_test(onFail, onSuccess, retryTimeMiliSeconds)}, retryTimeMiliSeconds);
             }
             else{
                 onSuccess();
@@ -1013,7 +1008,7 @@ class Navigation
                     }
                     // Create a navigation button for the new file.
                     let input = this.add_nav_button(filename);
-                    // Add functionallity to the button.
+                    // Add functionality to the button.
                     input.onclick = function()
                     {
                         this.editor.open_file(filename, "");
@@ -1144,7 +1139,7 @@ class Navigation
                 let last = file_data["last"];
                 let input = this.add_nav_button(filename);
 
-                // Add functionallity to the navigation button.
+                // Add functionality to the navigation button.
                 input.onclick = function()
                 {
                     this.editor.open_file(filename, filetext);
@@ -1274,7 +1269,7 @@ class Navigation
         this.get_saved_nav_items();
         // Reload the navigation buttons based on the new data from storage.
         this.reload_nav_buttons();
-        // Dissable all menus.
+        // Disable all menus.
         this.disable_all_menus();
         // Activate the right menu.
         switch(kind)

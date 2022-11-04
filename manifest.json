@@ -1,15 +1,15 @@
 {
-    "manifest_version":2,
+    "manifest_version":3,
     "name":"Page Manipulator",
-    "version":"0.5.2",
-    "description":"Inject HTML, CSS or JavaScript into any web-page. The changes you make are applied everytime you visit the specified website(s).",
+    "version":"0.5.3",
+    "description":"Inject HTML, CSS or JavaScript into any web-page. The changes you make are applied every time you visit the specified website(s).",
     "icons":
     {
         "128":"icon128.png",
         "48":"icon48.png",
         "16":"icon16.png"
     },
-    "browser_action":
+    "action":
     {
         "default_icon": "icon16.png",
         "default_popup": "popup.html",
@@ -18,8 +18,7 @@
   
     "background":
     {
-        "scripts": ["eventpage.js"],
-        "persistent": false
+        "service_worker": "eventpage.js"
     },
     "content_scripts":
     [
@@ -36,5 +35,9 @@
         "activeTab",
         "contextMenus",
         "unlimitedStorage"
-    ]
+    ],
+    "web_accessible_resources": [{
+        "resources": ["receiver.js"],
+        "matches": ["<all_urls>"]
+    }]
 }

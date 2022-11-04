@@ -1,6 +1,6 @@
 
 // Have the badge display 'off' by default.
-chrome.browserAction.setBadgeText({text:"Off"});
+chrome.action.setBadgeText({text:"Off"});
 
 // Listen for requests.
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
     // Change the value of the badge.
     if(request.todo == "SetBadge")
     {
-        chrome.browserAction.setBadgeText({text:request.value});
+        chrome.action.setBadgeText({text:request.value});
     }
 })
 
@@ -22,7 +22,7 @@ let CopyCSSMenuItem = {
 // Create the contextmenu.
 chrome.contextMenus.create(CopyCSSMenuItem);
 
-// Add functionallity to the context menu.
+// Add functionality to the context menu.
 chrome.contextMenus.onClicked.addListener(function(clickdata)
 {
     if(clickdata.menuItemId == "copyCSSpath")
