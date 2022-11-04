@@ -35,5 +35,9 @@
         "activeTab",
         "contextMenus",
         "unlimitedStorage"
-    ]
+    ],
+    "web_accessible_resources": [{
+        "resources": ["receiver.js"],
+        "matches": ["<all_urls>"]
+    }]
 }

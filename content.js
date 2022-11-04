@@ -1,13 +1,14 @@
 // Load() needs to be run both before, and after the page is loaded.
-// Otherwise the original page is shown bofore CSS manipulations.
+// Otherwise the original page is shown before CSS manipulations.
 // This doesn't add two manipulations that are the same 
 // because the 'manipulate' function checks if the manipulation is already present;
 load();
 
 // Bool that indicates whether the page is loaded.
 let page_loaded = false;
-// Arrays that consists of ['filename', element] pairs.
+// Array that consists of ['filename', element] pairs.
 let added_css = [];
+// Arrays that consists of 'filenames'.
 let added_js = [];
 // Array that consists of ['filename', element, position] pairs.
 let added_html = [];
@@ -154,7 +155,7 @@ function get_status(filename)
     {
         for(let element of added_js)
         {
-            if(element[0] === filename)
+            if(element === filename)
             {
                 return true;
             }
@@ -221,10 +222,19 @@ function remove_manipulation(request)
     {
         for(let element of added_js)
         {
-            if(element[0] === request.value)
+            if(element === request.value)
             {
                 let index = added_js.indexOf(element);
-                element[1].remove();
+                
+                // Get the event target
+                var event_target = document.getElementById("page-manipulator-event-target")
+
+                // Send remove request to listener.
+                var event = new CustomEvent("remove-manipulation", {'detail': {
+                    filename: request.value
+                }});
+                event_target.dispatchEvent(event);
+
                 added_js.splice(index, 1);
                 break;
             }
@@ -330,32 +340,55 @@ function manipulate(request, update)
     // Manipulate JavaScript
     else if(request.todo ==="changeJS" && (page_loaded||update))
     {
-        let alreadyInjected = false;
-        for(const element of Array.from(added_js))
-        {
-            if(element[0] === request.filename)
+        // Injects the user created javascript by sending it to the event target.
+        function injectUserCode() {
+            // Get the event target
+            var event_target = document.getElementById("page-manipulator-event-target")
+
+            let alreadyInjected = false;
+            for(const element of Array.from(added_js))
             {
-                alreadyInjected = true;
-                // Remove the old JS script from the page and inject the new JS into the page.
-                remove_request = {todo:"removeJS", value:request.filename};
-                remove_manipulation(remove_request);
-                manipulate(request, true);
-                break;
+                if(element === request.filename)
+                {
+                    alreadyInjected = true;
+                    // Remove the old JS script from the page and inject the new JS into the page.
+                    remove_request = {todo:"removeJS", value:request.filename};
+                    remove_manipulation(remove_request);
+                    manipulate(request, true);
+                    break;
+                }
+            }
+            // Add the new JS to the page if it wasn't already on there.
+            if(!alreadyInjected)
+            {
+                // Send event to event target.
+                var event = new CustomEvent("manipulate", {'detail': {
+                    code: request.code,
+                    filename: request.filename
+                }});
+                event_target.dispatchEvent(event);
+                added_js.push(request.filename);  
             }
         }
-        // Add the new JS to the page if it wasn't already on there.
-        if(!alreadyInjected)
-        {
-            let head = document.head;
-            let script = document.createElement("script");
-            script.textContent = request.code;
-            head.appendChild(script);
-            added_js.push([request.filename, script]);  
+
+        // Check if event target creator is present.
+        var event_target_creator = document.getElementById("page-manipulator-event-target-creator")
+        // If not, add event target creator
+        if(event_target_creator === null){
+            event_target_creator = document.createElement('script');
+            event_target_creator.setAttribute("id", "page-manipulator-event-target-creator");
+            event_target_creator.src = chrome.runtime.getURL('receiver.js');
+            event_target_creator.onload = function() {
+                injectUserCode();
+            };
+            document.head.appendChild(event_target_creator);
+        } else {
+            injectUserCode();
         }
     }
 }
 
-// Main function that initiates all the eventlisteners for incomming messages and mousepresses.
+// Main function that initiates all the event listeners for incoming messages and mouse presses.
 function main()
 {
     var clickedEl = null;
@@ -403,7 +436,7 @@ function main()
         }
     }, true);
     
-    // Add the listener for incomming messages.
+    // Add the listener for incoming messages.
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if(request.todo === "getClickedEl") {
             navigator.clipboard.writeText(clickedEl);
@@ -431,5 +464,26 @@ function main()
         {
             update_badge(); 
         }
+    });
+}
+
+// Wait for element on the page to be present.
+function waitForElm(selector) {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(mutations => {
+            if (document.querySelector(selector)) {
+                resolve(document.querySelector(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
     });
 }

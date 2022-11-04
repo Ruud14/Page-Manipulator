@@ -22,7 +22,7 @@ let CopyCSSMenuItem = {
 // Create the contextmenu.
 chrome.contextMenus.create(CopyCSSMenuItem);
 
-// Add functionallity to the context menu.
+// Add functionality to the context menu.
 chrome.contextMenus.onClicked.addListener(function(clickdata)
 {
     if(clickdata.menuItemId == "copyCSSpath")
