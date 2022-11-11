@@ -112,17 +112,65 @@ function load_data_from_storage_and_manipulate(data)
     }   
 }
 
+// Makes sure the event target is present on the page.
+// When there isn't an event target present initially, it will be created and the callback will be called in the onload.
+function require_event_target(callback) {
+    // Check if event target creator is present.
+    var event_target_creator = document.getElementById("page-manipulator-event-target-creator")
+    // If not, add event target creator
+    if(event_target_creator === null){
+        event_target_creator = document.createElement('script');
+        event_target_creator.setAttribute("id", "page-manipulator-event-target-creator");
+        event_target_creator.src = chrome.runtime.getURL('receiver.js');
+        event_target_creator.onload = function() {
+            callback()
+        };
+        document.head.appendChild(event_target_creator);
+    } else {
+        // Get the event target
+        var event_target = document.getElementById("page-manipulator-event-target")
+        if (event_target === null) {
+            throw "event_target not ready."
+        }
+        callback()
+    }
+}
+
 // Function that loads both the synced and local storage.
 function load()
 {
+    function check_for_js_file(data, yes, no) {
+        // Check if there is any javascript file.
+        file_is_js = (element) => ((element["filename"].substring(element["filename"].lastIndexOf(".") + 1, element["filename"].length)).toUpperCase()) == "JS";
+        has_js_file = Array.from(Object.values(data)).some(file_is_js)
+        if (has_js_file) {
+            require_event_target(function () {
+                yes()
+            })
+        } else {
+            no()
+        }
+    }
+
     // Load the synced data.
     chrome.storage.sync.get(null, function(data) {
-        load_data_from_storage_and_manipulate(data);
-    });
-
-    // Load the local data.
-    chrome.storage.local.get(null, function(data) {
-        load_data_from_storage_and_manipulate(data);
+        check_for_js_file(data, function () {
+            load_data_from_storage_and_manipulate(data);
+            // Load the local data.
+            chrome.storage.local.get(null, function(data2) {
+                load_data_from_storage_and_manipulate(data2);
+            });
+        }, function () {
+            load_data_from_storage_and_manipulate(data);
+            // Load the local data.
+            chrome.storage.local.get(null, function(data2) {
+                check_for_js_file(data2, function() {
+                    load_data_from_storage_and_manipulate(data2);
+                }, function () {
+                    load_data_from_storage_and_manipulate(data2);
+                })
+            });
+        });
     });
 }
 
@@ -371,20 +419,7 @@ function manipulate(request, update)
             }
         }
 
-        // Check if event target creator is present.
-        var event_target_creator = document.getElementById("page-manipulator-event-target-creator")
-        // If not, add event target creator
-        if(event_target_creator === null){
-            event_target_creator = document.createElement('script');
-            event_target_creator.setAttribute("id", "page-manipulator-event-target-creator");
-            event_target_creator.src = chrome.runtime.getURL('receiver.js');
-            event_target_creator.onload = function() {
-                injectUserCode();
-            };
-            document.head.appendChild(event_target_creator);
-        } else {
-            injectUserCode();
-        }
+        injectUserCode();        
     }
 }
 
@@ -452,12 +487,20 @@ function main()
         }
         else if(["removeCSS", "removeJS", "removeHTML"].includes(request.todo))
         {
-            remove_manipulation(request);
+            if (request.todo == "removeJS") {
+                require_event_target(function(){ remove_manipulation(request)});
+            } else {
+                remove_manipulation(request);
+            }
             update_badge(); 
         }
         if(["changeHTML", "changeCSS", "changeJS"].includes(request.todo))
         {
-            manipulate(request, true);
+            if (request.todo == "changeJS") {
+                require_event_target(function(){ manipulate(request, true)});
+            } else {
+                manipulate(request, true);
+            }
             update_badge(); 
         }
         else if(request.todo === "activeTabChanged")
