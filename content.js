@@ -50,6 +50,17 @@ function load_data_from_storage_and_manipulate(data)
         // Complete incomplete urls
         for(let site of active_websites)
         {
+            if (site.startsWith("https://") && !site.startsWith("https://www")){
+                site1 = "https://www." + site.slice(8);
+                active_websites.push(site1);
+            } else if  (site.startsWith("http://") && !site.startsWith("http://www")) {
+                site1 = "http://www." + site.slice(7);
+                active_websites.push(site1);
+            }
+        }
+
+        for(let site of active_websites)
+        {
             if(!(site.startsWith("https://")||site.startsWith("http://"))&&site.toLowerCase()!="all")
             {
                 if(site.startsWith("www."))
